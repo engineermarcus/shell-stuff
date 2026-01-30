@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>NEIMAN TERMINAL</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            background: #0a0a0a;
+            color: #ff8c00;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .terminal {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            max-width: 100%;
+            margin: 0 auto;
+        }
+
+        .terminal-header {
+            background: #1a1a1a;
+            padding: 12px 16px;
+            border-bottom: 2px solid #ff8c00;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .terminal-title {
+            font-size: 14px;
+            font-weight: bold;
+            letter-spacing: 2px;
+        }
+
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .status-dot.online { background: #00ff00; box-shadow: 0 0 6px #00ff00; }
+        .status-dot.offline { background: #ff0000; box-shadow: 0 0 6px #ff0000; }
+
+        .terminal-body {
+            flex: 1;
+            background: #000;
+            padding: 16px;
+            overflow-y: auto;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .terminal-body::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .terminal-body::-webkit-scrollbar-track {
+            background: #1a1a1a;
+        }
+
+        .terminal-body::-webkit-scrollbar-thumb {
+            background: #ff8c00;
+        }
+
+        .log-line {
+            margin-bottom: 4px;
+            word-wrap: break-word;
+        }
+
+        .log-time {
+            color: #666;
+            margin-right: 8px;
+        }
+
+        .log-info { color: #00bfff; }
+        .log-progress { color: #ffff00; }
+        .log-success { color: #00ff00; }
+        .log-error { color: #ff0000; }
+        .log-warning { color: #ffa500; }
+
+        .result-item {
+            border: 1px solid #ff8c00;
+            margin: 8px 0;
+            padding: 12px;
+            background: #0f0f0f;
+        }
+
+        .result-thumb {
+            width: 100%;
+            max-width: 200px;
+            height: auto;
+            margin-bottom: 8px;
+            border: 1px solid #ff8c00;
+        }
+
+        .result-title {
+            color: #ff8c00;
+            margin-bottom: 6px;
+            font-weight: bold;
+        }
+
+        .result-meta {
+            color: #888;
+            font-size: 11px;
+            margin-bottom: 8px;
+        }
+
+        .result-btn {
+            width: 100%;
+            padding: 12px;
+            background: #ff8c00;
+            color: #000;
+            border: none;
+            font-family: inherit;
+            font-weight: bold;
+            font-size: 12px;
+            cursor: pointer;
+            text-transform: uppercase;
+            margin-top: 8px;
+        }
+
+        .result-btn:active {
+            background: #ffa500;
+        }
+
+        .preview-box {
+            border: 2px solid #00ff00;
+            padding: 12px;
+            margin: 12px 0;
+            background: #0a0a0a;
+        }
+
+        .preview-title {
+            color: #00ff00;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .preview-player {
+            width: 100%;
+            max-width: 100%;
+            background: #000;
+            margin-bottom: 10px;
+        }
+
+        .preview-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .preview-btn {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #ff8c00;
+            background: #1a1a1a;
+            color: #ff8c00;
+            font-family: inherit;
+            font-weight: bold;
+            font-size: 12px;
+            cursor: pointer;
+            text-decoration: none;
+            display: block;
+            text-align: center;
+        }
+
+        .preview-btn.download {
+            background: #ff8c00;
+            color: #000;
+            border: none;
+        }
+
+        .preview-btn:active {
+            opacity: 0.7;
+        }
+
+        .terminal-input {
+            background: #1a1a1a;
+            border-top: 2px solid #ff8c00;
+            padding: 16px;
+        }
+
+        .format-selector {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .format-btn {
+            flex: 1;
+            padding: 10px;
+            background: #0a0a0a;
+            border: 1px solid #ff8c00;
+            color: #ff8c00;
+            font-family: inherit;
+            font-size: 11px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .format-btn.active {
+            background: #ff8c00;
+            color: #000;
+        }
+
+        .format-btn:active {
+            opacity: 0.7;
+        }
+
+        .input-row {
+            display: flex;
+            gap: 8px;
+        }
+
+        .input-field {
+            flex: 1;
+            padding: 14px;
+            background: #000;
+            border: 1px solid #ff8c00;
+            color: #ff8c00;
+            font-family: inherit;
+            font-size: 13px;
+            outline: none;
+        }
+
+        .input-field::placeholder {
+            color: #666;
+        }
+
+        .execute-btn {
+            width: 50px;
+            background: #ff8c00;
+            border: none;
+            color: #000;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .execute-btn:active {
+            background: #ffa500;
+        }
+
+        .execute-btn:disabled {
+            opacity: 0.5;
+        }
+
+        @media (min-width: 768px) {
+            .terminal {
+                max-width: 900px;
+            }
+            
+            .result-item {
+                display: flex;
+                gap: 12px;
+            }
+            
+            .result-thumb {
+                max-width: 160px;
+                margin-bottom: 0;
+            }
+            
+            .result-content {
+                flex: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="terminal">
+        <div class="terminal-header">
+            <div class="terminal-title">NEIMAN TERMINAL</div>
+            <div class="status">
+                <span class="status-dot" id="statusDot"></span>
+                <span id="statusText">CONNECTING</span>
+            </div>
+        </div>
+        
+        <div class="terminal-body" id="terminal">
+            <div class="log-line">
+                <span class="log-time">[SYSTEM]</span>
+                <span>Terminal initialized. Ready for input.</span>
+            </div>
+        </div>
+
+        <div class="terminal-input">
+            <div class="format-selector">
+                <button class="format-btn active" data-format="mp4">
+                    <i class="fas fa-video"></i> MP4
+                </button>
+                <button class="format-btn" data-format="mp3">
+                    <i class="fas fa-music"></i> MP3
+                </button>
+            </div>
+            <div class="input-row">
+                <input 
+                    type="text" 
+                    id="input" 
+                    class="input-field" 
+                    placeholder="Search or paste URL..."
+                >
+                <button class="execute-btn" id="executeBtn">
+                    <i class="fas fa-play"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let ws;
+        let format = 'mp4';
+        let currentDownloadId = null;
+
+        const terminal = document.getElementById('terminal');
+        const input = document.getElementById('input');
+        const executeBtn = document.getElementById('executeBtn');
+        const statusDot = document.getElementById('statusDot');
+        const statusText = document.getElementById('statusText');
+
+        function connectWS() {
+            ws = new WebSocket(`ws://${window.location.hostname}:3000`);
+            
+            ws.onopen = () => {
+                log('WebSocket connected', 'success');
+                statusDot.className = 'status-dot online';
+                statusText.textContent = 'ONLINE';
+            };
+            
+            ws.onmessage = (e) => {
+                const data = JSON.parse(e.data);
+                if (data.downloadId === currentDownloadId || !currentDownloadId) {
+                    log(data.message, data.type);
+                }
+            };
+            
+            ws.onclose = () => {
+                log('Connection lost. Reconnecting...', 'error');
+                statusDot.className = 'status-dot offline';
+                statusText.textContent = 'OFFLINE';
+                setTimeout(connectWS, 3000);
+            };
+        }
+
+        connectWS();
+
+        document.querySelectorAll('.format-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.format-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                format = btn.dataset.format;
+                log(`Format: ${format.toUpperCase()}`, 'info');
+            });
+        });
+
+        executeBtn.addEventListener('click', execute);
+        input.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') execute();
+        });
+
+        async function execute() {
+            const query = input.value.trim();
+            if (!query) return;
+
+            log(`> ${query}`, 'info');
+            input.value = '';
+
+            if (query.includes('youtube.com') || query.includes('youtu.be') || query.includes('tiktok.com')) {
+                downloadDirect(query);
+                return;
+            }
+
+            executeBtn.disabled = true;
+            executeBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+
+            try {
+                log(`Searching: "${query}"`, 'info');
+                const res = await fetch(`/search?q=${encodeURIComponent(query)}`);
+                const data = await res.json();
+
+                if (data.videos?.length) {
+                    log(`Found ${data.videos.length} results`, 'success');
+                    displayResults(data.videos);
+                } else {
+                    log('No results', 'warning');
+                }
+            } catch (err) {
+                log(`Search failed: ${err.message}`, 'error');
+            } finally {
+                executeBtn.disabled = false;
+                executeBtn.innerHTML = '<i class="fas fa-play"></i>';
+            }
+        }
+
+        function displayResults(videos) {
+            videos.forEach(v => {
+                const div = document.createElement('div');
+                div.className = 'result-item';
+                div.innerHTML = `
+                    <img src="${v.thumbnail}" class="result-thumb" onerror="this.style.display='none'">
+                    <div class="result-content">
+                        <div class="result-title">${escape(v.title)}</div>
+                        <div class="result-meta">${escape(v.author.name)} • ${v.timestamp}</div>
+                        <button class="result-btn" onclick="download('${escape(v.url)}', '${escape(v.title)}')">
+                            <i class="fas fa-download"></i> DOWNLOAD ${format.toUpperCase()}
+                        </button>
+                    </div>
+                `;
+                terminal.appendChild(div);
+            });
+            scrollDown();
+        }
+
+        async function downloadDirect(url) {
+            currentDownloadId = Date.now().toString();
+            executeBtn.disabled = true;
+            executeBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            
+            const isTikTok = url.includes('tiktok');
+            const endpoint = isTikTok 
+                ? `/download?url=${encodeURIComponent(url)}`
+                : `/download?q=${encodeURIComponent(url)}&format=${format}`;
+
+            try {
+                const res = await fetch(endpoint);
+                const data = await res.json();
+                if (data.success) {
+                    currentDownloadId = data.downloadId;
+                    showPreview(data.downloadUrl, data.filename, data.title);
+                }
+            } catch (err) {
+                log(`Failed: ${err.message}`, 'error');
+            } finally {
+                executeBtn.disabled = false;
+                executeBtn.innerHTML = '<i class="fas fa-play"></i>';
+            }
+        }
+
+        async function download(url, title) {
+            currentDownloadId = Date.now().toString();
+            log(`Downloading: ${title}`, 'info');
+            
+            // Clear results
+            document.querySelectorAll('.result-item').forEach(el => el.remove());
+            
+            try {
+                const res = await fetch(`/download?q=${encodeURIComponent(url)}&format=${format}`);
+                const data = await res.json();
+                if (data.success) {
+                    currentDownloadId = data.downloadId;
+                    showPreview(data.downloadUrl, data.filename, data.title);
+                }
+            } catch (err) {
+                log(`Failed: ${err.message}`, 'error');
+            }
+        }
+
+        function showPreview(url, filename, title) {
+            const div = document.createElement('div');
+            div.className = 'preview-box';
+            
+            const media = format === 'mp3'
+                ? `<audio class="preview-player" src="${url}" controls></audio>`
+                : `<video class="preview-player" src="${url}" controls></video>`;
+            
+            div.innerHTML = `
+                <div class="preview-title">${escape(title)}</div>
+                ${media}
+                <div class="preview-actions">
+                    <button class="preview-btn" onclick="this.closest('.preview-box').remove()">
+                        CLOSE
+                    </button>
+                    <a class="preview-btn download" href="${url}" download="${filename}">
+                        <i class="fas fa-download"></i> SAVE
+                    </a>
+                </div>
+            `;
+            
+            terminal.appendChild(div);
+            scrollDown();
+        }
+
+        function log(msg, type = 'info') {
+            const div = document.createElement('div');
+            div.className = `log-line log-${type}`;
+            const time = new Date().toLocaleTimeString();
+            div.innerHTML = `<span class="log-time">[${time}]</span><span>${escape(msg)}</span>`;
+            terminal.appendChild(div);
+            scrollDown();
+        }
+
+        function scrollDown() {
+            terminal.scrollTop = terminal.scrollHeight;
+        }
+
+        function escape(str) {
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+    </script>
+</body>
+</html>
