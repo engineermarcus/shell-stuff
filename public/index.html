@@ -13,30 +13,27 @@
             -webkit-tap-highlight-color: transparent;
         }
 
+        html, body {
+            height: 100%;
+            overflow: hidden;
+        }
+
         body {
             font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
             background: #0a0a0a;
             color: #ff8c00;
-            min-height: 100vh;
             display: flex;
             flex-direction: column;
-        }
-
-        .terminal {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            max-width: 100%;
-            margin: 0 auto;
         }
 
         .terminal-header {
             background: #1a1a1a;
-            padding: 12px 16px;
+            padding: 16px 15px;
             border-bottom: 2px solid #ff8c00;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-shrink: 0;
         }
 
         .terminal-title {
@@ -49,7 +46,7 @@
             display: flex;
             align-items: center;
             gap: 6px;
-            font-size: 11px;
+            font-size: 12px;
         }
 
         .status-dot {
@@ -58,85 +55,203 @@
             border-radius: 50%;
         }
 
-        .status-dot.online { background: #00ff00; box-shadow: 0 0 6px #00ff00; }
-        .status-dot.offline { background: #ff0000; box-shadow: 0 0 6px #ff0000; }
+        .status-dot.online { background: #00ff00; box-shadow: 0 0 8px #00ff00; }
+        .status-dot.offline { background: #ff0000; box-shadow: 0 0 8px #ff0000; }
+
+        .terminal-container {
+            flex: 1;
+            background: #000;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            min-height: 0;
+        }
 
         .terminal-body {
             flex: 1;
-            background: #000;
-            padding: 16px;
+            padding: 12px;
             overflow-y: auto;
             font-size: 13px;
             line-height: 1.6;
+            -webkit-overflow-scrolling: touch;
+            min-height: 0;
         }
 
         .terminal-body::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        .terminal-body::-webkit-scrollbar-track {
-            background: #1a1a1a;
+            width: 5px;
         }
 
         .terminal-body::-webkit-scrollbar-thumb {
             background: #ff8c00;
+            border-radius: 3px;
+        }
+
+        .terminal-prompt {
+            background: #0a0a0a;
+            padding: 10px 12px;
+            border-top: 1px solid #333;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .prompt-symbol {
+            color: #00ff00;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .terminal-cmd-line {
+            flex: 1;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            color: #ff8c00;
+            font-family: inherit;
+            font-size: 14px;
+            min-height: 22px;
+        }
+
+        .terminal-cmd-text {
+            color: #ff8c00;
+            white-space: pre;
+        }
+
+        .terminal-cursor {
+            display: inline-block;
+            width: 10px;
+            height: 18px;
+            background: #ff8c00;
+            margin-left: 1px;
+            animation: blink 1s step-end infinite;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+
+        .terminal-cmd-input {
+            position: absolute;
+            left: -9999px;
+            opacity: 0;
         }
 
         .log-line {
-            margin-bottom: 4px;
+            margin-bottom: 6px;
             word-wrap: break-word;
+            font-family: monospace;
+        }
+
+        .command-line {
+            color: #00ff00;
+            margin-bottom: 4px;
+        }
+
+        .prompt {
+            color: #00ff00;
+            margin-right: 6px;
+            font-weight: bold;
         }
 
         .log-time {
             color: #666;
             margin-right: 8px;
+            font-size: 11px;
         }
 
         .log-info { color: #00bfff; }
-        .log-progress { color: #ffff00; }
         .log-success { color: #00ff00; }
         .log-error { color: #ff0000; }
         .log-warning { color: #ffa500; }
+        .log-progress { color: #ffff00; }
+
+        .progress-bar {
+            margin: 8px 0;
+            padding: 8px;
+            border: 1px solid #ff8c00;
+            background: #0f0f0f;
+        }
+
+        .progress-title {
+            color: #ff8c00;
+            font-size: 12px;
+            margin-bottom: 6px;
+        }
+
+        .progress-track {
+            width: 100%;
+            height: 20px;
+            background: #1a1a1a;
+            border: 1px solid #666;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ff8c00, #ffa500);
+            transition: width 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #000;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        .progress-stats {
+            margin-top: 6px;
+            font-size: 11px;
+            color: #888;
+        }
 
         .result-item {
             border: 1px solid #ff8c00;
-            margin: 8px 0;
+            margin: 10px 0;
             padding: 12px;
             background: #0f0f0f;
         }
 
         .result-thumb {
             width: 100%;
-            max-width: 200px;
             height: auto;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
             border: 1px solid #ff8c00;
         }
 
         .result-title {
             color: #ff8c00;
-            margin-bottom: 6px;
+            margin-bottom: 8px;
             font-weight: bold;
+            font-size: 14px;
+            line-height: 1.4;
         }
 
         .result-meta {
             color: #888;
-            font-size: 11px;
-            margin-bottom: 8px;
+            font-size: 12px;
+            margin-bottom: 10px;
         }
 
         .result-btn {
             width: 100%;
-            padding: 12px;
+            padding: 14px;
             background: #ff8c00;
             color: #000;
             border: none;
             font-family: inherit;
             font-weight: bold;
-            font-size: 12px;
+            font-size: 13px;
             cursor: pointer;
             text-transform: uppercase;
-            margin-top: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
 
         .result-btn:active {
@@ -154,33 +269,36 @@
             color: #00ff00;
             margin-bottom: 10px;
             font-weight: bold;
+            font-size: 14px;
+            line-height: 1.4;
         }
 
         .preview-player {
             width: 100%;
-            max-width: 100%;
             background: #000;
             margin-bottom: 10px;
         }
 
         .preview-actions {
-            display: flex;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
             gap: 8px;
         }
 
         .preview-btn {
-            flex: 1;
-            padding: 12px;
+            padding: 14px;
             border: 1px solid #ff8c00;
             background: #1a1a1a;
             color: #ff8c00;
             font-family: inherit;
             font-weight: bold;
-            font-size: 12px;
+            font-size: 13px;
             cursor: pointer;
             text-decoration: none;
-            display: block;
-            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
         }
 
         .preview-btn.download {
@@ -196,25 +314,30 @@
         .terminal-input {
             background: #1a1a1a;
             border-top: 2px solid #ff8c00;
-            padding: 16px;
+            padding: 12px;
+            flex-shrink: 0;
         }
 
         .format-selector {
-            display: flex;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
             gap: 8px;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
         }
 
         .format-btn {
-            flex: 1;
-            padding: 10px;
+            padding: 12px;
             background: #0a0a0a;
             border: 1px solid #ff8c00;
             color: #ff8c00;
             font-family: inherit;
-            font-size: 11px;
+            font-size: 13px;
             font-weight: bold;
             cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
         }
 
         .format-btn.active {
@@ -223,7 +346,7 @@
         }
 
         .format-btn:active {
-            opacity: 0.7;
+            opacity: 0.8;
         }
 
         .input-row {
@@ -233,13 +356,17 @@
 
         .input-field {
             flex: 1;
-            padding: 14px;
+            padding: 14px 12px;
             background: #000;
             border: 1px solid #ff8c00;
             color: #ff8c00;
             font-family: inherit;
-            font-size: 13px;
+            font-size: 14px;
             outline: none;
+        }
+
+        .input-field:focus {
+            border-color: #ffa500;
         }
 
         .input-field::placeholder {
@@ -248,11 +375,16 @@
 
         .execute-btn {
             width: 50px;
+            height: 50px;
             background: #ff8c00;
             border: none;
             color: #000;
             font-size: 16px;
             cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
         }
 
         .execute-btn:active {
@@ -263,64 +395,87 @@
             opacity: 0.5;
         }
 
-        @media (min-width: 768px) {
-            .terminal {
-                max-width: 900px;
-            }
-            
-            .result-item {
-                display: flex;
-                gap: 12px;
-            }
-            
-            .result-thumb {
-                max-width: 160px;
-                margin-bottom: 0;
-            }
-            
-            .result-content {
-                flex: 1;
-            }
+        .help-section {
+            border: 1px solid #00ff00;
+            padding: 10px;
+            margin: 10px 0;
+            background: #0a0a0a;
+            font-size: 12px;
+        }
+
+        .help-title {
+            color: #00ff00;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .help-item {
+            color: #888;
+            margin: 4px 0;
+        }
+
+        .help-cmd {
+            color: #ff8c00;
         }
     </style>
 </head>
 <body>
-    <div class="terminal">
-        <div class="terminal-header">
-            <div class="terminal-title">NEIMAN TERMINAL</div>
-            <div class="status">
-                <span class="status-dot" id="statusDot"></span>
-                <span id="statusText">CONNECTING</span>
-            </div>
+    <div class="terminal-header">
+        <div class="terminal-title">NEIMAN TERMINAL</div>
+        <div class="status">
+            <span class="status-dot" id="statusDot"></span>
+            <span id="statusText">CONNECTING</span>
         </div>
-        
+    </div>
+    
+    <div class="terminal-container">
         <div class="terminal-body" id="terminal">
             <div class="log-line">
                 <span class="log-time">[SYSTEM]</span>
-                <span>Terminal initialized. Ready for input.</span>
+                <span>Terminal initialized. Type 'help' for commands.</span>
             </div>
         </div>
+        
+        <div class="terminal-prompt">
+            <span class="prompt-symbol">$</span>
+            <div class="terminal-cmd-line" id="cmdLine">
+                <span class="terminal-cmd-text" id="cmdText"></span>
+                <span class="terminal-cursor" id="cursor"></span>
+            </div>
+            <input 
+                type="text" 
+                id="cmdInput" 
+                class="terminal-cmd-input"
+                autocomplete="off"
+                autocorrect="off"
+                autocapitalize="off"
+                spellcheck="false"
+            >
+        </div>
+    </div>
 
-        <div class="terminal-input">
-            <div class="format-selector">
-                <button class="format-btn active" data-format="mp4">
-                    <i class="fas fa-video"></i> MP4
-                </button>
-                <button class="format-btn" data-format="mp3">
-                    <i class="fas fa-music"></i> MP3
-                </button>
-            </div>
-            <div class="input-row">
-                <input 
-                    type="text" 
-                    id="input" 
-                    class="input-field" 
-                    placeholder="Search or paste URL..."
-                >
-                <button class="execute-btn" id="executeBtn">
-                    <i class="fas fa-play"></i>
-                </button>
-            </div>
+    <div class="terminal-input">
+        <div class="format-selector">
+            <button class="format-btn active" data-format="mp4">
+                <i class="fas fa-video"></i> MP4
+            </button>
+            <button class="format-btn" data-format="mp3">
+                <i class="fas fa-music"></i> MP3
+            </button>
+        </div>
+        <div class="input-row">
+            <input 
+                type="text" 
+                id="input" 
+                class="input-field" 
+                placeholder="Search or paste URL..."
+                autocomplete="off"
+                autocorrect="off"
+                autocapitalize="off"
+            >
+            <button class="execute-btn" id="executeBtn">
+                <i class="fas fa-play"></i>
+            </button>
         </div>
     </div>
 
@@ -328,12 +483,83 @@
         let ws;
         let format = 'mp4';
         let currentDownloadId = null;
+        let progressBars = {};
+        let commandHistory = [];
+        let historyIndex = -1;
+        let currentCommand = '';
 
         const terminal = document.getElementById('terminal');
         const input = document.getElementById('input');
+        const cmdInput = document.getElementById('cmdInput');
+        const cmdText = document.getElementById('cmdText');
+        const cmdLine = document.getElementById('cmdLine');
         const executeBtn = document.getElementById('executeBtn');
         const statusDot = document.getElementById('statusDot');
         const statusText = document.getElementById('statusText');
+
+        // Auto-focus the hidden input on page load and clicks
+        window.addEventListener('load', () => cmdInput.focus());
+        document.addEventListener('click', () => cmdInput.focus());
+        cmdLine.addEventListener('click', () => cmdInput.focus());
+
+        // Handle all keyboard input
+        cmdInput.addEventListener('input', (e) => {
+            currentCommand = e.target.value;
+            cmdText.textContent = currentCommand;
+        });
+
+        cmdInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                executeCommand();
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                navigateHistory(-1);
+            } else if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                navigateHistory(1);
+            } else if (e.key === 'l' && e.ctrlKey) {
+                e.preventDefault();
+                clearTerminal();
+            }
+        });
+
+        const commands = {
+            help: () => showHelp(),
+            clear: () => clearTerminal(),
+            format: (args) => setFormat(args[0]),
+            search: (args) => searchVideo(args.join(' ')),
+            download: (args) => downloadURL(args.join(' ')),
+            fetch: (args) => downloadURL(args.join(' ')),
+            get: (args) => downloadURL(args.join(' ')),
+            system: (args) => systemCommand(args),
+            ls: () => executeShellCommand('ls -la'),
+            pwd: () => executeShellCommand('pwd'),
+            whoami: () => executeShellCommand('whoami'),
+            date: () => executeShellCommand('date'),
+            echo: (args) => executeShellCommand(`echo ${args.join(' ')}`),
+            uname: () => executeShellCommand('uname -a'),
+            history: () => showHistory(),
+            pkg: (args) => executeShellCommand(`pkg ${args.join(' ')}`),
+            apt: (args) => executeShellCommand(`apt ${args.join(' ')}`),
+            npm: (args) => executeShellCommand(`npm ${args.join(' ')}`),
+            node: (args) => executeShellCommand(`node ${args.join(' ')}`),
+            python: (args) => executeShellCommand(`python ${args.join(' ')}`),
+            pip: (args) => executeShellCommand(`pip ${args.join(' ')}`),
+            cat: (args) => executeShellCommand(`cat ${args.join(' ')}`),
+            mkdir: (args) => executeShellCommand(`mkdir ${args.join(' ')}`),
+            rm: (args) => executeShellCommand(`rm ${args.join(' ')}`),
+            cp: (args) => executeShellCommand(`cp ${args.join(' ')}`),
+            mv: (args) => executeShellCommand(`mv ${args.join(' ')}`),
+            chmod: (args) => executeShellCommand(`chmod ${args.join(' ')}`),
+            ps: () => executeShellCommand('ps aux'),
+            top: () => executeShellCommand('top -n 1'),
+            df: () => executeShellCommand('df -h'),
+            free: () => executeShellCommand('free -h'),
+            wget: (args) => executeShellCommand(`wget ${args.join(' ')}`),
+            curl: (args) => executeShellCommand(`curl ${args.join(' ')}`),
+            git: (args) => executeShellCommand(`git ${args.join(' ')}`)
+        };
 
         function connectWS() {
             ws = new WebSocket(`ws://${window.location.hostname}:3000`);
@@ -346,7 +572,11 @@
             
             ws.onmessage = (e) => {
                 const data = JSON.parse(e.data);
-                if (data.downloadId === currentDownloadId || !currentDownloadId) {
+                
+                // Handle download progress
+                if (data.type === 'progress' && data.downloadId) {
+                    updateProgress(data.downloadId, data.progress, data.message);
+                } else if (data.downloadId === currentDownloadId || !currentDownloadId) {
                     log(data.message, data.type);
                 }
             };
@@ -361,37 +591,187 @@
 
         connectWS();
 
+        function executeCommand() {
+            const cmdToExecute = currentCommand.trim();
+            if (!cmdToExecute) return;
+
+            // Add to history
+            commandHistory.push(cmdToExecute);
+            historyIndex = commandHistory.length;
+
+            // Show command in terminal
+            showCommand(cmdToExecute);
+            
+            // Clear input
+            currentCommand = '';
+            cmdInput.value = '';
+            cmdText.textContent = '';
+
+            // Parse command
+            const parts = cmdToExecute.split(' ');
+            const cmd = parts[0].toLowerCase();
+            const args = parts.slice(1);
+
+            // Check if it's a URL
+            if (cmdToExecute.includes('youtube.com') || cmdToExecute.includes('youtu.be') || cmdToExecute.includes('tiktok.com')) {
+                downloadDirect(cmdToExecute);
+                return;
+            }
+
+            // Execute command
+            if (commands[cmd]) {
+                commands[cmd](args);
+            } else {
+                // Try to execute as shell command
+                executeShellCommand(cmdToExecute);
+            }
+        }
+
+        function navigateHistory(direction) {
+            historyIndex += direction;
+            if (historyIndex < 0) historyIndex = 0;
+            if (historyIndex > commandHistory.length) historyIndex = commandHistory.length;
+
+            if (historyIndex < commandHistory.length) {
+                currentCommand = commandHistory[historyIndex];
+                cmdInput.value = currentCommand;
+                cmdText.textContent = currentCommand;
+            } else {
+                currentCommand = '';
+                cmdInput.value = '';
+                cmdText.textContent = '';
+            }
+        }
+
+        function showHistory() {
+            if (commandHistory.length === 0) {
+                log('No command history', 'info');
+                return;
+            }
+            commandHistory.forEach((cmd, i) => {
+                log(`${i + 1}  ${cmd}`, 'info');
+            });
+        }
+
+        // Shell integration functions
+        async function systemCommand(args) {
+            const command = `system ${args.join(' ')}`;
+            await executeShellCommand(command);
+        }
+
+        async function executeShellCommand(command) {
+            try {
+                const res = await fetch('/execute', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ command })
+                });
+                
+                const data = await res.json();
+                if (!data.success) {
+                    log(`Failed to execute: ${command}`, 'error');
+                }
+                // Output will come through WebSocket
+            } catch (err) {
+                log(`Execution error: ${err.message}`, 'error');
+            }
+        }
+
+        // Search box handling (unchanged)
         document.querySelectorAll('.format-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 document.querySelectorAll('.format-btn').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
                 format = btn.dataset.format;
-                log(`Format: ${format.toUpperCase()}`, 'info');
+                log(`Format set to: ${format.toUpperCase()}`, 'success');
             });
         });
 
         executeBtn.addEventListener('click', execute);
         input.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') execute();
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                execute();
+            }
         });
 
-        async function execute() {
+        function execute() {
             const query = input.value.trim();
             if (!query) return;
 
-            log(`> ${query}`, 'info');
+            log(`Searching: ${query}`, 'info');
             input.value = '';
+            input.blur();
 
             if (query.includes('youtube.com') || query.includes('youtu.be') || query.includes('tiktok.com')) {
                 downloadDirect(query);
                 return;
             }
 
-            executeBtn.disabled = true;
-            executeBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            searchVideo(query);
+        }
+
+        function showCommand(cmd) {
+            const div = document.createElement('div');
+            div.className = 'command-line';
+            div.innerHTML = `<span class="prompt">$</span>${escape(cmd)}`;
+            terminal.appendChild(div);
+            scrollDown();
+        }
+
+        function showHelp() {
+            const help = document.createElement('div');
+            help.className = 'help-section';
+            help.innerHTML = `
+                <div class="help-title">NEIMAN TERMINAL COMMANDS</div>
+                <div class="help-item"><span class="help-cmd">help</span> - Show this help</div>
+                <div class="help-item"><span class="help-cmd">clear</span> - Clear terminal</div>
+                <div class="help-item"><span class="help-cmd">format [mp4|mp3]</span> - Set download format</div>
+                <div class="help-item"><span class="help-cmd">search [query]</span> - Search for videos</div>
+                <div class="help-item"><span class="help-cmd">download [url]</span> - Download from URL</div>
+                <div class="help-item"><span class="help-cmd">fetch [url]</span> - Alias for download</div>
+                <div class="help-item"><span class="help-cmd">get [url]</span> - Alias for download</div>
+                <div class="help-item"><span class="help-cmd">system install [pkg]</span> - Install package</div>
+                <div class="help-item"><span class="help-cmd">system update</span> - Update system</div>
+                <div class="help-item" style="margin-top: 8px; color: #00ff00;">SHELL COMMANDS:</div>
+                <div class="help-item"><span class="help-cmd">ls, pwd, whoami, date, echo, uname</span> - Unix commands</div>
+                <div class="help-item"><span class="help-cmd">pkg, apt, npm, node, python, pip</span> - Package managers</div>
+                <div class="help-item"><span class="help-cmd">cat, mkdir, rm, cp, mv, chmod</span> - File operations</div>
+                <div class="help-item"><span class="help-cmd">ps, top, df, free</span> - System info</div>
+                <div class="help-item"><span class="help-cmd">wget, curl, git</span> - Network tools</div>
+                <div class="help-item"><span class="help-cmd">history</span> - Show command history</div>
+                <div class="help-item" style="margin-top: 8px; color: #666;">Use ↑↓ arrows for command history</div>
+                <div class="help-item" style="color: #666;">Any unrecognized command will be executed as shell command</div>
+            `;
+            terminal.appendChild(help);
+            scrollDown();
+        }
+
+        function clearTerminal() {
+            terminal.innerHTML = '';
+            log('Terminal cleared', 'success');
+        }
+
+        function setFormat(fmt) {
+            if (fmt === 'mp4' || fmt === 'mp3') {
+                format = fmt;
+                document.querySelectorAll('.format-btn').forEach(b => {
+                    b.classList.toggle('active', b.dataset.format === fmt);
+                });
+                log(`Format set to: ${fmt.toUpperCase()}`, 'success');
+            } else {
+                log('Invalid format. Use: mp4 or mp3', 'error');
+            }
+        }
+
+        async function searchVideo(query) {
+            if (!query) {
+                log('Usage: search [query]', 'error');
+                return;
+            }
 
             try {
-                log(`Searching: "${query}"`, 'info');
+                log(`Searching for: "${query}"`, 'info');
                 const res = await fetch(`/search?q=${encodeURIComponent(query)}`);
                 const data = await res.json();
 
@@ -399,13 +779,59 @@
                     log(`Found ${data.videos.length} results`, 'success');
                     displayResults(data.videos);
                 } else {
-                    log('No results', 'warning');
+                    log('No results found', 'warning');
                 }
             } catch (err) {
                 log(`Search failed: ${err.message}`, 'error');
-            } finally {
-                executeBtn.disabled = false;
-                executeBtn.innerHTML = '<i class="fas fa-play"></i>';
+            }
+        }
+
+        function downloadURL(url) {
+            if (!url) {
+                log('Usage: download [url]', 'error');
+                return;
+            }
+            downloadDirect(url);
+        }
+
+        function createProgressBar(id, title) {
+            const div = document.createElement('div');
+            div.className = 'progress-bar';
+            div.id = `progress-${id}`;
+            div.innerHTML = `
+                <div class="progress-title">${escape(title)}</div>
+                <div class="progress-track">
+                    <div class="progress-fill" style="width: 0%">0%</div>
+                </div>
+                <div class="progress-stats">Speed: 0 KB/s | ETA: calculating...</div>
+            `;
+            terminal.appendChild(div);
+            scrollDown();
+            return div;
+        }
+
+        function updateProgress(id, percent, message) {
+            let bar = progressBars[id];
+            if (!bar) {
+                bar = createProgressBar(id, message || 'Downloading...');
+                progressBars[id] = bar;
+            }
+
+            const fill = bar.querySelector('.progress-fill');
+            const stats = bar.querySelector('.progress-stats');
+            
+            fill.style.width = `${percent}%`;
+            fill.textContent = `${percent}%`;
+
+            if (message) {
+                stats.textContent = message;
+            }
+
+            if (percent >= 100) {
+                setTimeout(() => {
+                    bar.remove();
+                    delete progressBars[id];
+                }, 2000);
             }
         }
 
@@ -415,13 +841,11 @@
                 div.className = 'result-item';
                 div.innerHTML = `
                     <img src="${v.thumbnail}" class="result-thumb" onerror="this.style.display='none'">
-                    <div class="result-content">
-                        <div class="result-title">${escape(v.title)}</div>
-                        <div class="result-meta">${escape(v.author.name)} • ${v.timestamp}</div>
-                        <button class="result-btn" onclick="download('${escape(v.url)}', '${escape(v.title)}')">
-                            <i class="fas fa-download"></i> DOWNLOAD ${format.toUpperCase()}
-                        </button>
-                    </div>
+                    <div class="result-title">${escape(v.title)}</div>
+                    <div class="result-meta">${escape(v.author.name)} • ${v.timestamp}</div>
+                    <button class="result-btn" onclick="download('${escape(v.url)}', '${escape(v.title)}')">
+                        <i class="fas fa-download"></i> DOWNLOAD ${format.toUpperCase()}
+                    </button>
                 `;
                 terminal.appendChild(div);
             });
@@ -430,8 +854,8 @@
 
         async function downloadDirect(url) {
             currentDownloadId = Date.now().toString();
-            executeBtn.disabled = true;
-            executeBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            
+            log(`Resolving URL...`, 'progress');
             
             const isTikTok = url.includes('tiktok');
             const endpoint = isTikTok 
@@ -443,21 +867,18 @@
                 const data = await res.json();
                 if (data.success) {
                     currentDownloadId = data.downloadId;
+                    log('Download started...', 'progress');
                     showPreview(data.downloadUrl, data.filename, data.title);
                 }
             } catch (err) {
-                log(`Failed: ${err.message}`, 'error');
-            } finally {
-                executeBtn.disabled = false;
-                executeBtn.innerHTML = '<i class="fas fa-play"></i>';
+                log(`Error: ${err.message}`, 'error');
             }
         }
 
         async function download(url, title) {
             currentDownloadId = Date.now().toString();
-            log(`Downloading: ${title}`, 'info');
+            log(`Initiating download: ${title}`, 'info');
             
-            // Clear results
             document.querySelectorAll('.result-item').forEach(el => el.remove());
             
             try {
@@ -465,10 +886,11 @@
                 const data = await res.json();
                 if (data.success) {
                     currentDownloadId = data.downloadId;
+                    log('Download in progress...', 'progress');
                     showPreview(data.downloadUrl, data.filename, data.title);
                 }
             } catch (err) {
-                log(`Failed: ${err.message}`, 'error');
+                log(`Error: ${err.message}`, 'error');
             }
         }
 
@@ -478,7 +900,7 @@
             
             const media = format === 'mp3'
                 ? `<audio class="preview-player" src="${url}" controls></audio>`
-                : `<video class="preview-player" src="${url}" controls></video>`;
+                : `<video class="preview-player" src="${url}" controls playsinline></video>`;
             
             div.innerHTML = `
                 <div class="preview-title">${escape(title)}</div>
@@ -494,6 +916,7 @@
             `;
             
             terminal.appendChild(div);
+            log(`Download complete: ${filename}`, 'success');
             scrollDown();
         }
 
@@ -507,7 +930,9 @@
         }
 
         function scrollDown() {
-            terminal.scrollTop = terminal.scrollHeight;
+            setTimeout(() => {
+                terminal.scrollTop = terminal.scrollHeight;
+            }, 100);
         }
 
         function escape(str) {

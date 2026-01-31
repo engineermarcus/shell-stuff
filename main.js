@@ -54,6 +54,101 @@ function broadcastLog(downloadId, type, message) {
     });
 }
 
+// Command execution endpoint
+app.post('/execute', (req, res) => {
+    const { command } = req.body;
+    const sessionId = Date.now().toString();
+    
+    if (!command) {
+        return res.status(400).json({ error: 'Command required' });
+    }
+    
+    // Parse command and arguments
+    const parts = command.trim().split(/\s+/);
+    const cmd = parts[0];
+    const args = parts.slice(1);
+    
+    // Command aliases for Termux-style system commands
+    const aliases = {
+        'system': {
+            'install': (pkg) => ['pkg', ['install', '-y', ...pkg]],
+            'update': () => ['pkg', ['update']],
+            'upgrade': () => ['pkg', ['upgrade', '-y']],
+            'remove': (pkg) => ['pkg', ['remove', '-y', ...pkg]]
+        }
+    };
+    
+    let execCmd = cmd;
+    let execArgs = args;
+    
+    // Handle system commands
+    if (cmd === 'system' && args.length > 0) {
+        const subCmd = args[0];
+        const subArgs = args.slice(1);
+        
+        if (aliases.system[subCmd]) {
+            const [aliasCmd, aliasArgs] = aliases.system[subCmd](subArgs);
+            execCmd = aliasCmd;
+            execArgs = aliasArgs;
+        } else {
+            broadcastLog(sessionId, 'error', `system: unknown command: ${subCmd}`);
+            return res.json({ success: false, sessionId });
+        }
+    }
+    
+    try {
+        const childProcess = spawn(execCmd, execArgs, {
+            shell: false
+        });
+        
+        let hasOutput = false;
+        
+        childProcess.stdout.on('data', (data) => {
+            hasOutput = true;
+            const output = data.toString();
+            const lines = output.split('\n').filter(line => line.trim());
+            lines.forEach(line => {
+                broadcastLog(sessionId, 'info', line);
+            });
+        });
+        
+        childProcess.stderr.on('data', (data) => {
+            hasOutput = true;
+            const output = data.toString();
+            const lines = output.split('\n').filter(line => line.trim());
+            lines.forEach(line => {
+                if (line.toLowerCase().includes('error')) {
+                    broadcastLog(sessionId, 'error', line);
+                } else if (line.toLowerCase().includes('warning')) {
+                    broadcastLog(sessionId, 'warning', line);
+                } else {
+                    broadcastLog(sessionId, 'info', line);
+                }
+            });
+        });
+        
+        childProcess.on('close', (code) => {
+            if (code === 0) {
+                if (!hasOutput) {
+                    broadcastLog(sessionId, 'success', 'Command completed');
+                }
+            } else if (code !== null) {
+                broadcastLog(sessionId, 'error', `Command exited with code ${code}`);
+            }
+        });
+        
+        childProcess.on('error', (err) => {
+            broadcastLog(sessionId, 'error', `bash: ${cmd}: command not found`);
+        });
+        
+        res.json({ success: true, sessionId });
+        
+    } catch (error) {
+        broadcastLog(sessionId, 'error', error.message);
+        res.status(500).json({ error: error.message });
+    }
+});
+
 // Search endpoint using yt-dlp
 app.get('/search', async (req, res) => {
     const { q } = req.query;
