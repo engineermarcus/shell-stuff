@@ -73,17 +73,21 @@
             overflow-y: auto;
             font-size: 13px;
             line-height: 1.6;
-            -webkit-overflow-scrolling: touch;
             min-height: 0;
+            scrollbar-width: thin;
+            scrollbar-color: #ff8c00 #000;
         }
 
         .terminal-body::-webkit-scrollbar {
-            width: 5px;
+            width: 8px;
+        }
+
+        .terminal-body::-webkit-scrollbar-track {
+            background: #000;
         }
 
         .terminal-body::-webkit-scrollbar-thumb {
             background: #ff8c00;
-            border-radius: 3px;
         }
 
         .terminal-prompt {
@@ -170,88 +174,105 @@
         .log-progress { color: #ffff00; }
 
         .progress-bar {
-            margin: 8px 0;
-            padding: 8px;
-            border: 1px solid #ff8c00;
-            background: #0f0f0f;
+            margin: 6px 0;
+            padding: 6px;
+            background: transparent;
+            border-left: 2px solid #ffff00;
         }
 
         .progress-title {
-            color: #ff8c00;
-            font-size: 12px;
-            margin-bottom: 6px;
+            color: #ffff00;
+            font-size: 11px;
+            margin-bottom: 4px;
         }
 
         .progress-track {
             width: 100%;
-            height: 20px;
+            height: 4px;
             background: #1a1a1a;
-            border: 1px solid #666;
             position: relative;
             overflow: hidden;
         }
 
         .progress-fill {
             height: 100%;
-            background: linear-gradient(90deg, #ff8c00, #ffa500);
+            background: #ffff00;
             transition: width 0.3s;
             display: flex;
             align-items: center;
-            justify-content: center;
+            justify-content: flex-end;
+            padding-right: 4px;
             color: #000;
-            font-size: 11px;
+            font-size: 9px;
             font-weight: bold;
         }
 
         .progress-stats {
-            margin-top: 6px;
-            font-size: 11px;
-            color: #888;
+            margin-top: 4px;
+            font-size: 10px;
+            color: #666;
         }
 
         .result-item {
-            border: 1px solid #ff8c00;
-            margin: 10px 0;
-            padding: 12px;
-            background: #0f0f0f;
+            margin: 8px 0;
+            padding: 6px;
+            background: #0a0a0a;
+            display: flex;
+            gap: 10px;
+            border-left: 2px solid #ff8c00;
         }
 
         .result-thumb {
-            width: 100%;
-            height: auto;
-            margin-bottom: 10px;
-            border: 1px solid #ff8c00;
+            width: 120px;
+            height: 90px;
+            object-fit: cover;
+            flex-shrink: 0;
+            opacity: 0.9;
+        }
+
+        .result-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
         }
 
         .result-title {
             color: #ff8c00;
-            margin-bottom: 8px;
+            margin-bottom: 4px;
             font-weight: bold;
-            font-size: 14px;
-            line-height: 1.4;
+            font-size: 12px;
+            line-height: 1.3;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
         }
 
         .result-meta {
-            color: #888;
-            font-size: 12px;
-            margin-bottom: 10px;
+            color: #666;
+            font-size: 10px;
+            margin-bottom: 6px;
         }
 
         .result-btn {
-            width: 100%;
-            padding: 14px;
+            padding: 6px 10px;
             background: #ff8c00;
             color: #000;
             border: none;
             font-family: inherit;
             font-weight: bold;
-            font-size: 13px;
+            font-size: 10px;
             cursor: pointer;
             text-transform: uppercase;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
+            gap: 4px;
+            margin-top: auto;
+            white-space: nowrap;
+            align-self: flex-start;
         }
 
         .result-btn:active {
@@ -281,58 +302,83 @@
         }
 
         .media-player {
-            background: #0a0a0a;
-            border: 2px solid #ff8c00;
-            padding: 12px;
-            margin: 12px 0;
+            background: #000;
+            padding: 8px;
+            margin: 8px 0;
+            display: flex;
+            gap: 10px;
+            border-left: 3px solid #00ff00;
+        }
+
+        .media-left {
+            flex-shrink: 0;
         }
 
         .media-title {
-            color: #ff8c00;
+            color: #00ff00;
             font-weight: bold;
-            margin-bottom: 10px;
-            font-size: 13px;
+            margin-bottom: 6px;
+            font-size: 11px;
         }
 
         .media-container {
-            width: 100%;
+            width: 160px;
             background: #000;
-            margin-bottom: 12px;
-            border: 1px solid #666;
+            position: relative;
         }
 
-        .media-container video,
-        .media-container audio {
+        .media-container video {
             width: 100%;
             display: block;
         }
 
+        .media-container audio {
+            display: none;
+        }
+
+        .audio-thumbnail {
+            width: 160px;
+            height: 120px;
+            object-fit: cover;
+            display: block;
+            opacity: 0.8;
+        }
+
+        .media-right {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+        }
+
         .player-controls {
-            background: #1a1a1a;
-            padding: 10px;
-            border: 1px solid #ff8c00;
+            background: transparent;
+            padding: 0;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
         }
 
         .player-time {
             display: flex;
             justify-content: space-between;
-            color: #ff8c00;
-            font-size: 11px;
-            margin-bottom: 8px;
+            color: #666;
+            font-size: 10px;
+            margin-bottom: 4px;
         }
 
         .player-seek {
             width: 100%;
-            height: 6px;
-            background: #333;
-            margin-bottom: 12px;
+            height: 3px;
+            background: #1a1a1a;
+            margin-bottom: 8px;
             position: relative;
             cursor: pointer;
         }
 
         .player-seek-bar {
             height: 100%;
-            background: linear-gradient(90deg, #ff8c00, #ffa500);
+            background: #ff8c00;
             width: 0%;
             transition: width 0.1s;
         }
@@ -340,17 +386,17 @@
         .player-buttons {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
-            gap: 6px;
-            margin-bottom: 10px;
+            gap: 4px;
+            margin-bottom: 8px;
         }
 
         .player-btn {
-            padding: 12px;
-            background: #0a0a0a;
-            border: 1px solid #ff8c00;
+            padding: 6px;
+            background: transparent;
+            border: 1px solid #333;
             color: #ff8c00;
             font-family: inherit;
-            font-size: 14px;
+            font-size: 12px;
             cursor: pointer;
             display: flex;
             align-items: center;
@@ -358,41 +404,41 @@
         }
 
         .player-btn:active {
-            background: #ff8c00;
-            color: #000;
+            background: #1a1a1a;
+            border-color: #ff8c00;
         }
 
         .player-btn.playing {
-            background: #ff8c00;
-            color: #000;
+            background: #1a1a1a;
+            border-color: #ff8c00;
         }
 
         .player-actions {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 8px;
+            gap: 4px;
+            margin-top: auto;
         }
 
         .player-action-btn {
-            padding: 14px;
-            border: 1px solid #ff8c00;
+            padding: 6px;
+            border: none;
             background: #1a1a1a;
-            color: #ff8c00;
+            color: #666;
             font-family: inherit;
             font-weight: bold;
-            font-size: 13px;
+            font-size: 10px;
             cursor: pointer;
             text-decoration: none;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 6px;
+            gap: 4px;
         }
 
         .player-action-btn.download {
             background: #00ff00;
             color: #000;
-            border-color: #00ff00;
         }
 
         .player-action-btn:active {
@@ -520,22 +566,22 @@
         }
 
         .help-section {
-            border: 1px solid #00ff00;
-            padding: 10px;
-            margin: 10px 0;
-            background: #0a0a0a;
-            font-size: 12px;
+            padding: 8px;
+            margin: 8px 0;
+            background: transparent;
+            font-size: 11px;
+            border-left: 2px solid #00ff00;
         }
 
         .help-title {
             color: #00ff00;
             font-weight: bold;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
         }
 
         .help-item {
-            color: #888;
-            margin: 4px 0;
+            color: #666;
+            margin: 2px 0;
         }
 
         .help-cmd {
@@ -611,6 +657,8 @@
         let commandHistory = [];
         let historyIndex = -1;
         let currentCommand = '';
+        let activeDownloads = new Set();
+        let pendingDownloads = new Map();
 
         const terminal = document.getElementById('terminal');
         const input = document.getElementById('input');
@@ -699,16 +747,36 @@
             ws.onopen = () => {
                 log('WebSocket connected', 'success');
                 statusDot.className = 'status-dot online';
-                statusText.textContent = 'ONLINE';
+                updateStatus();
             };
             
             ws.onmessage = (e) => {
                 const data = JSON.parse(e.data);
                 
+                // Handle download completion with file info
+                if (data.type === 'success' && data.message.startsWith('{')) {
+                    try {
+                        const fileInfo = JSON.parse(data.message);
+                        if (fileInfo.downloadUrl && fileInfo.filename) {
+                            const downloadData = pendingDownloads.get(data.downloadId);
+                            if (downloadData) {
+                                showPreview(fileInfo.downloadUrl, fileInfo.filename, fileInfo.title, fileInfo.thumbnail);
+                                pendingDownloads.delete(data.downloadId);
+                                activeDownloads.delete(data.downloadId);
+                                updateStatus();
+                            }
+                            return;
+                        }
+                    } catch (e) {
+                        // Not JSON, continue normal processing
+                    }
+                }
+                
                 // Handle download progress
                 if (data.type === 'progress' && data.downloadId) {
                     updateProgress(data.downloadId, data.progress, data.message);
-                } else if (data.downloadId === currentDownloadId || !currentDownloadId) {
+                } else {
+                    // Show message for all active operations
                     log(data.message, data.type);
                 }
             };
@@ -719,6 +787,15 @@
                 statusText.textContent = 'OFFLINE';
                 setTimeout(connectWS, 3000);
             };
+        }
+
+        function updateStatus() {
+            const count = activeDownloads.size;
+            if (count === 0) {
+                statusText.textContent = 'ONLINE';
+            } else {
+                statusText.textContent = `ONLINE [${count} ACTIVE]`;
+            }
         }
 
         connectWS();
@@ -999,11 +1076,13 @@
                 div.className = 'result-item';
                 div.innerHTML = `
                     <img src="${v.thumbnail}" class="result-thumb" onerror="this.style.display='none'">
-                    <div class="result-title">${escape(v.title)}</div>
-                    <div class="result-meta">${escape(v.author.name)} • ${v.timestamp}</div>
-                    <button class="result-btn" onclick="download('${escape(v.url)}', '${escape(v.title)}')">
-                        <i class="fas fa-download"></i> DOWNLOAD ${format.toUpperCase()}
-                    </button>
+                    <div class="result-content">
+                        <div class="result-title">${escape(v.title)}</div>
+                        <div class="result-meta">${escape(v.author.name)} • ${v.timestamp}</div>
+                        <button class="result-btn" onclick="download('${escape(v.url)}', '${escape(v.title)}', '${escape(v.thumbnail)}')">
+                            <i class="fas fa-download"></i> ${format.toUpperCase()}
+                        </button>
+                    </div>
                 `;
                 terminal.appendChild(div);
             });
@@ -1011,9 +1090,11 @@
         }
 
         async function downloadDirect(url) {
-            currentDownloadId = Date.now().toString();
+            const downloadId = Date.now().toString();
+            activeDownloads.add(downloadId);
+            updateStatus();
             
-            log(`Resolving URL...`, 'progress');
+            log(`[${downloadId.slice(-4)}] Resolving URL...`, 'progress');
             
             const isTikTok = url.includes('tiktok');
             const endpoint = isTikTok 
@@ -1024,79 +1105,94 @@
                 const res = await fetch(endpoint);
                 const data = await res.json();
                 if (data.success) {
-                    currentDownloadId = data.downloadId;
-                    log('Download started...', 'progress');
-                    showPreview(data.downloadUrl, data.filename, data.title);
+                    pendingDownloads.set(data.downloadId, { url, format });
+                    log(`[${data.downloadId.slice(-4)}] Download started (ID: ${data.downloadId.slice(-4)})`, 'success');
                 }
             } catch (err) {
-                log(`Error: ${err.message}`, 'error');
+                activeDownloads.delete(downloadId);
+                updateStatus();
+                log(`[${downloadId.slice(-4)}] Error: ${err.message}`, 'error');
             }
         }
 
-        async function download(url, title) {
-            currentDownloadId = Date.now().toString();
-            log(`Initiating download: ${title}`, 'info');
+        async function download(url, title, thumbnail = '') {
+            const downloadId = Date.now().toString();
+            activeDownloads.add(downloadId);
+            updateStatus();
             
-            document.querySelectorAll('.result-item').forEach(el => el.remove());
+            log(`[${downloadId.slice(-4)}] Initiating: ${title}`, 'info');
             
             try {
                 const res = await fetch(`/download?q=${encodeURIComponent(url)}&format=${format}`);
                 const data = await res.json();
                 if (data.success) {
-                    currentDownloadId = data.downloadId;
-                    log('Download in progress...', 'progress');
-                    showPreview(data.downloadUrl, data.filename, data.title);
+                    pendingDownloads.set(data.downloadId, { url, format, title, thumbnail });
+                    log(`[${data.downloadId.slice(-4)}] Download started`, 'success');
                 }
             } catch (err) {
-                log(`Error: ${err.message}`, 'error');
+                activeDownloads.delete(downloadId);
+                updateStatus();
+                log(`[${downloadId.slice(-4)}] Error: ${err.message}`, 'error');
             }
         }
 
-        function showPreview(url, filename, title) {
+        function showPreview(url, filename, title, thumbnail = '') {
             const playerId = `player-${Date.now()}`;
             const div = document.createElement('div');
             div.className = 'media-player';
             div.id = playerId;
             
-            const mediaType = format === 'mp3' ? 'audio' : 'video';
+            const isAudio = format === 'mp3';
+            
+            // For audio, show thumbnail or default image
+            const audioThumb = thumbnail || 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="160" height="120"%3E%3Crect fill="%23000" width="160" height="120"/%3E%3Ctext x="50%25" y="50%25" fill="%23ff8c00" font-size="40" text-anchor="middle" dy=".3em"%3E♪%3C/text%3E%3C/svg%3E';
             
             div.innerHTML = `
-                <div class="media-title">▶ ${escape(title)}</div>
-                <div class="media-container">
-                    <${mediaType} id="${playerId}-media" src="${url}" ${mediaType === 'video' ? 'playsinline' : ''}></${mediaType}>
+                <div class="media-left">
+                    <div class="media-title">▶ ${escape(title)}</div>
+                    <div class="media-container">
+                        ${isAudio ? `
+                            <img src="${audioThumb}" class="audio-thumbnail" alt="Audio">
+                            <audio id="${playerId}-media" src="${url}"></audio>
+                        ` : `
+                            <video id="${playerId}-media" src="${url}" playsinline></video>
+                        `}
+                    </div>
                 </div>
-                <div class="player-controls">
-                    <div class="player-time">
-                        <span id="${playerId}-current">0:00</span>
-                        <span id="${playerId}-duration">0:00</span>
-                    </div>
-                    <div class="player-seek" id="${playerId}-seek">
-                        <div class="player-seek-bar" id="${playerId}-seek-bar"></div>
-                    </div>
-                    <div class="player-buttons">
-                        <button class="player-btn" id="${playerId}-backward" title="Backward 10s">
-                            <i class="fas fa-backward"></i>
-                        </button>
-                        <button class="player-btn" id="${playerId}-play" title="Play/Pause">
-                            <i class="fas fa-play"></i>
-                        </button>
-                        <button class="player-btn" id="${playerId}-stop" title="Stop">
-                            <i class="fas fa-stop"></i>
-                        </button>
-                        <button class="player-btn" id="${playerId}-forward" title="Forward 10s">
-                            <i class="fas fa-forward"></i>
-                        </button>
-                        <button class="player-btn" id="${playerId}-volume" title="Mute/Unmute">
-                            <i class="fas fa-volume-up"></i>
-                        </button>
-                    </div>
-                    <div class="player-actions">
-                        <button class="player-action-btn" onclick="closePlayer('${playerId}')">
-                            <i class="fas fa-times"></i> CLOSE
-                        </button>
-                        <a class="player-action-btn download" href="${url}" download="${filename}">
-                            <i class="fas fa-download"></i> SAVE
-                        </a>
+                <div class="media-right">
+                    <div class="player-controls">
+                        <div class="player-time">
+                            <span id="${playerId}-current">0:00</span>
+                            <span id="${playerId}-duration">0:00</span>
+                        </div>
+                        <div class="player-seek" id="${playerId}-seek">
+                            <div class="player-seek-bar" id="${playerId}-seek-bar"></div>
+                        </div>
+                        <div class="player-buttons">
+                            <button class="player-btn" id="${playerId}-backward" title="Backward 10s">
+                                <i class="fas fa-backward"></i>
+                            </button>
+                            <button class="player-btn" id="${playerId}-play" title="Play/Pause">
+                                <i class="fas fa-play"></i>
+                            </button>
+                            <button class="player-btn" id="${playerId}-stop" title="Stop">
+                                <i class="fas fa-stop"></i>
+                            </button>
+                            <button class="player-btn" id="${playerId}-forward" title="Forward 10s">
+                                <i class="fas fa-forward"></i>
+                            </button>
+                            <button class="player-btn" id="${playerId}-volume" title="Mute/Unmute">
+                                <i class="fas fa-volume-up"></i>
+                            </button>
+                        </div>
+                        <div class="player-actions">
+                            <button class="player-action-btn" onclick="closePlayer('${playerId}')">
+                                <i class="fas fa-times"></i> CLOSE
+                            </button>
+                            <a class="player-action-btn download" href="${url}" download="${filename}">
+                                <i class="fas fa-download"></i> SAVE
+                            </a>
+                        </div>
                     </div>
                 </div>
             `;
