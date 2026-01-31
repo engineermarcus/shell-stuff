@@ -1,0 +1,6 @@
+Package: neiman
+Version: 1.0.0
+Architecture: all
+Maintainer: Marcus
+Depends: nodejs, ffmpeg, python
+Description: Neiman - TikTok and YouTube downloader server

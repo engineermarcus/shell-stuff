@@ -1,0 +1,1747 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>NEIMAN TERMINAL</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html, body {
+            height: 100%;
+            overflow: hidden;
+        }
+
+        body {
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            background: #0a0a0a;
+            color: #ff8c00;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .terminal-header {
+            background: #1a1a1a;
+            padding: 16px 15px;
+            border-bottom: 2px solid #ff8c00;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .terminal-title {
+            font-size: 14px;
+            font-weight: bold;
+            letter-spacing: 2px;
+        }
+
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .status-dot.online { background: #00ff00; box-shadow: 0 0 8px #00ff00; }
+        .status-dot.offline { background: #ff0000; box-shadow: 0 0 8px #ff0000; }
+
+        .terminal-container {
+            flex: 1;
+            background: #000;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            min-height: 0;
+        }
+
+        .terminal-body {
+            flex: 1;
+            padding: 12px;
+            overflow-y: auto;
+            font-size: 13px;
+            line-height: 1.6;
+            min-height: 0;
+            scrollbar-width: thin;
+            scrollbar-color: #ff8c00 #000;
+        }
+
+        .terminal-body::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .terminal-body::-webkit-scrollbar-track {
+            background: #000;
+        }
+
+        .terminal-body::-webkit-scrollbar-thumb {
+            background: #ff8c00;
+        }
+
+        .terminal-prompt {
+            background: #0a0a0a;
+            padding: 10px 12px;
+            border-top: 1px solid #333;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .prompt-symbol {
+            color: #00ff00;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .terminal-cmd-line {
+            flex: 1;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            color: #ff8c00;
+            font-family: inherit;
+            font-size: 14px;
+            min-height: 22px;
+        }
+
+        .terminal-cmd-text {
+            color: #ff8c00;
+            white-space: pre;
+        }
+
+        .terminal-cursor {
+            display: inline-block;
+            width: 10px;
+            height: 18px;
+            background: #ff8c00;
+            margin-left: 1px;
+            animation: blink 1s step-end infinite;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+
+        .terminal-cmd-input {
+            position: absolute;
+            left: -9999px;
+            opacity: 0;
+        }
+
+        .log-line {
+            margin-bottom: 6px;
+            word-wrap: break-word;
+            font-family: monospace;
+        }
+
+        .command-line {
+            color: #00ff00;
+            margin-bottom: 4px;
+        }
+
+        .prompt {
+            color: #00ff00;
+            margin-right: 6px;
+            font-weight: bold;
+        }
+
+        .log-time {
+            color: #666;
+            margin-right: 8px;
+            font-size: 11px;
+        }
+
+        .log-info { color: #00bfff; }
+        .log-success { color: #00ff00; }
+        .log-error { color: #ff0000; }
+        .log-warning { color: #ffa500; }
+        .log-progress { color: #ffff00; }
+
+        .progress-bar {
+            margin: 6px 0;
+            padding: 6px;
+            background: transparent;
+            border-left: 2px solid #ffff00;
+        }
+
+        .progress-title {
+            color: #ffff00;
+            font-size: 11px;
+            margin-bottom: 4px;
+        }
+
+        .progress-track {
+            width: 100%;
+            height: 4px;
+            background: #1a1a1a;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #ffff00;
+            transition: width 0.2s linear;
+            width: 0%;
+        }
+
+        .progress-stats {
+            margin-top: 4px;
+            font-size: 10px;
+            color: #666;
+        }
+
+        .progress-percent {
+            color: #ffff00;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+
+        .result-item {
+            margin: 8px 0;
+            padding: 6px;
+            background: #0a0a0a;
+            display: flex;
+            gap: 10px;
+            border-left: 2px solid #ff8c00;
+        }
+
+        .result-thumb {
+            width: 120px;
+            height: 90px;
+            object-fit: cover;
+            flex-shrink: 0;
+            opacity: 0.9;
+        }
+
+        .result-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+        }
+
+        .result-title {
+            color: #ff8c00;
+            margin-bottom: 4px;
+            font-weight: bold;
+            font-size: 12px;
+            line-height: 1.3;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+
+        .result-meta {
+            color: #666;
+            font-size: 10px;
+            margin-bottom: 6px;
+        }
+
+        .result-btn {
+            padding: 6px 10px;
+            background: #ff8c00;
+            color: #000;
+            border: none;
+            font-family: inherit;
+            font-weight: bold;
+            font-size: 10px;
+            cursor: pointer;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            margin-top: auto;
+            white-space: nowrap;
+            align-self: flex-start;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+
+        .result-btn:active {
+            background: #ffa500;
+        }
+
+        .preview-box {
+            border: 2px solid #00ff00;
+            padding: 12px;
+            margin: 12px 0;
+            background: #0a0a0a;
+        }
+
+        .preview-title {
+            color: #00ff00;
+            margin-bottom: 10px;
+            font-weight: bold;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .preview-player {
+            width: 100%;
+            background: #000;
+            margin-bottom: 10px;
+            border: 1px solid #ff8c00;
+        }
+
+        .media-player {
+            background: #000;
+            padding: 8px;
+            margin: 8px 0;
+            display: flex;
+            gap: 10px;
+            border-left: 3px solid #00ff00;
+        }
+
+        .media-left {
+            flex-shrink: 0;
+        }
+
+        .media-title {
+            color: #00ff00;
+            font-weight: bold;
+            margin-bottom: 6px;
+            font-size: 11px;
+        }
+
+        .media-container {
+            width: 160px;
+            background: #000;
+            position: relative;
+        }
+
+        .media-container video {
+            width: 100%;
+            display: block;
+            background: #000;
+        }
+
+        .media-container audio {
+            display: none;
+        }
+
+        .audio-thumbnail {
+            width: 160px;
+            height: 120px;
+            object-fit: cover;
+            display: block;
+            opacity: 0.8;
+        }
+
+        .video-thumbnail {
+            width: 160px;
+            height: 120px;
+            object-fit: cover;
+            display: block;
+            opacity: 0.9;
+        }
+
+        .media-right {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+        }
+
+        .player-controls {
+            background: transparent;
+            padding: 0;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .player-time {
+            display: flex;
+            justify-content: space-between;
+            color: #ff8c00;
+            font-size: 10px;
+            margin-bottom: 4px;
+            font-weight: bold;
+        }
+
+        .player-seek {
+            width: 100%;
+            height: 4px;
+            background: #1a1a1a;
+            margin-bottom: 8px;
+            position: relative;
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .player-seek-bar {
+            height: 100%;
+            background: #ff8c00;
+            width: 0%;
+            transition: width 0.1s;
+        }
+
+        .player-buttons {
+            display: flex;
+            gap: 2px;
+            margin-bottom: 6px;
+        }
+
+        .player-btn {
+            flex: 1;
+            padding: 6px 2px;
+            background: #1a1a1a;
+            border: none;
+            color: #666;
+            font-family: inherit;
+            font-size: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.1s;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+            min-height: 28px;
+        }
+
+        .player-btn:hover {
+            color: #ff8c00;
+            background: #0a0a0a;
+        }
+
+        .player-btn:active {
+            background: #000;
+            color: #ffa500;
+        }
+
+        .player-btn.playing {
+            background: #ff8c00;
+            color: #000;
+        }
+
+        .player-btn.fullscreen-active {
+            background: #00ff00;
+            color: #000;
+        }
+
+        .player-actions {
+            display: flex;
+            gap: 2px;
+            margin-top: auto;
+        }
+
+        .player-action-btn {
+            flex: 1;
+            padding: 6px;
+            border: none;
+            background: #1a1a1a;
+            color: #666;
+            font-family: inherit;
+            font-weight: bold;
+            font-size: 9px;
+            cursor: pointer;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 3px;
+            text-transform: uppercase;
+            transition: all 0.1s;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+            min-height: 28px;
+        }
+
+        .player-action-btn:hover {
+            background: #0a0a0a;
+            color: #888;
+        }
+
+        .player-action-btn.download {
+            background: #00ff00;
+            color: #000;
+        }
+
+        .player-action-btn.download:hover {
+            background: #00cc00;
+        }
+
+        .player-action-btn:active {
+            opacity: 0.8;
+        }
+
+        .preview-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .preview-btn {
+            padding: 14px;
+            border: 1px solid #ff8c00;
+            background: #1a1a1a;
+            color: #ff8c00;
+            font-family: inherit;
+            font-weight: bold;
+            font-size: 13px;
+            cursor: pointer;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+
+        .preview-btn.download {
+            background: #ff8c00;
+            color: #000;
+            border: none;
+        }
+
+        .preview-btn:active {
+            opacity: 0.7;
+        }
+
+        .terminal-input {
+            background: #1a1a1a;
+            border-top: 2px solid #ff8c00;
+            padding: 12px;
+            flex-shrink: 0;
+        }
+
+        .format-selector {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .format-btn {
+            padding: 12px;
+            background: #0a0a0a;
+            border: 1px solid #ff8c00;
+            color: #ff8c00;
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+
+        .format-btn.active {
+            background: #ff8c00;
+            color: #000;
+        }
+
+        .format-btn:active {
+            opacity: 0.8;
+        }
+
+        .input-row {
+            display: flex;
+            gap: 8px;
+        }
+
+        .input-field {
+            flex: 1;
+            padding: 14px 12px;
+            background: #000;
+            border: 1px solid #ff8c00;
+            color: #ff8c00;
+            font-family: inherit;
+            font-size: 14px;
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        .input-field:focus {
+            border-color: #ffa500;
+        }
+
+        .input-field::placeholder {
+            color: #666;
+        }
+
+        .execute-btn {
+            width: 50px;
+            height: 50px;
+            background: #ff8c00;
+            border: none;
+            color: #000;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+
+        .execute-btn:active {
+            background: #ffa500;
+        }
+
+        .execute-btn:disabled {
+            opacity: 0.5;
+        }
+
+        .help-section {
+            padding: 8px;
+            margin: 8px 0;
+            background: transparent;
+            font-size: 11px;
+            border-left: 2px solid #00ff00;
+        }
+
+        .help-title {
+            color: #00ff00;
+            font-weight: bold;
+            margin-bottom: 6px;
+        }
+
+        .help-item {
+            color: #666;
+            margin: 2px 0;
+        }
+
+        .help-cmd {
+            color: #ff8c00;
+        }
+
+        /* FULLSCREEN STYLES - THIS IS THE FIX */
+        .media-player[data-fullscreen="true"] {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            z-index: 99999 !important;
+            background: #000 !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            border: none !important;
+            display: block !important;
+        }
+
+        .media-player[data-fullscreen="true"] .media-left {
+            position: absolute !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+        }
+
+        .media-player[data-fullscreen="true"] .media-container {
+            position: absolute !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+        }
+
+        .media-player[data-fullscreen="true"] .media-container video,
+        .media-player[data-fullscreen="true"] .media-container audio {
+            position: relative !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            object-fit: contain !important;
+        }
+
+        .media-player[data-fullscreen="true"] .audio-thumbnail {
+            max-width: 80vw !important;
+            max-height: 80vh !important;
+            width: auto !important;
+            height: auto !important;
+        }
+
+        .media-player[data-fullscreen="true"] .media-right {
+            position: absolute !important;
+            bottom: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            width: 100% !important;
+            padding: 20px !important;
+            background: linear-gradient(to top, rgba(0,0,0,0.95), rgba(0,0,0,0.7)) !important;
+            z-index: 10 !important;
+        }
+
+        .media-player[data-fullscreen="true"] .media-title {
+            position: absolute !important;
+            top: 20px !important;
+            left: 20px !important;
+            right: 20px !important;
+            z-index: 10 !important;
+            text-align: center !important;
+            font-size: 18px !important;
+        }
+
+        .media-player[data-fullscreen="true"] .player-btn {
+            min-height: 50px !important;
+            font-size: 18px !important;
+        }
+
+        .media-player[data-fullscreen="true"] .player-action-btn {
+            min-height: 50px !important;
+            font-size: 14px !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="terminal-header">
+        <div class="terminal-title">NEIMAN TERMINAL</div>
+        <div class="status">
+            <span class="status-dot" id="statusDot"></span>
+            <span id="statusText">CONNECTING</span>
+        </div>
+    </div>
+    
+    <div class="terminal-container">
+        <div class="terminal-body" id="terminal">
+            <div class="log-line">
+                <span class="log-time">[SYSTEM]</span>
+                <span>Terminal initialized. Type 'help' for commands.</span>
+            </div>
+        </div>
+        
+        <div class="terminal-prompt">
+            <span class="prompt-symbol">$</span>
+            <div class="terminal-cmd-line" id="cmdLine">
+                <span class="terminal-cmd-text" id="cmdText"></span>
+                <span class="terminal-cursor" id="cursor"></span>
+            </div>
+            <input 
+                type="text" 
+                id="cmdInput" 
+                class="terminal-cmd-input"
+                autocomplete="off"
+                autocorrect="off"
+                autocapitalize="off"
+                spellcheck="false"
+            >
+        </div>
+    </div>
+
+    <div class="terminal-input">
+        <div class="format-selector">
+            <button class="format-btn active" data-format="mp4">
+                <i class="fas fa-video"></i> MP4
+            </button>
+            <button class="format-btn" data-format="mp3">
+                <i class="fas fa-music"></i> MP3
+            </button>
+        </div>
+        <div class="input-row">
+            <input 
+                type="text" 
+                id="input" 
+                class="input-field" 
+                placeholder="Search or paste URL..."
+                autocomplete="off"
+                autocorrect="off"
+                autocapitalize="off"
+            >
+            <button class="execute-btn" id="executeBtn">
+                <i class="fas fa-play"></i>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        let ws;
+        let format = 'mp4';
+        let currentDownloadId = null;
+        let progressBars = {};
+        let commandHistory = [];
+        let historyIndex = -1;
+        let currentCommand = '';
+        let activeDownloads = new Set();
+        let pendingDownloads = new Map();
+        let activePlayers = new Map();
+
+        const terminal = document.getElementById('terminal');
+        const input = document.getElementById('input');
+        const cmdInput = document.getElementById('cmdInput');
+        const cmdText = document.getElementById('cmdText');
+        const cmdLine = document.getElementById('cmdLine');
+        const executeBtn = document.getElementById('executeBtn');
+        const statusDot = document.getElementById('statusDot');
+        const statusText = document.getElementById('statusText');
+
+        const STORAGE_KEYS = {
+            TERMINAL_CONTENT: 'neiman_terminal_content',
+            COMMAND_HISTORY: 'neiman_command_history',
+            ACTIVE_PLAYERS: 'neiman_active_players',
+            FORMAT: 'neiman_format'
+        };
+
+        function saveTerminalState() {
+            try {
+                localStorage.setItem(STORAGE_KEYS.TERMINAL_CONTENT, terminal.innerHTML);
+                localStorage.setItem(STORAGE_KEYS.COMMAND_HISTORY, JSON.stringify(commandHistory));
+                const playersData = Array.from(activePlayers.entries());
+                localStorage.setItem(STORAGE_KEYS.ACTIVE_PLAYERS, JSON.stringify(playersData));
+                localStorage.setItem(STORAGE_KEYS.FORMAT, format);
+            } catch (e) {
+                console.error('Failed to save terminal state:', e);
+            }
+        }
+
+        function reattachResultButtonListeners() {
+            const resultButtons = document.querySelectorAll('.result-btn');
+            
+            resultButtons.forEach(btn => {
+                const newBtn = btn.cloneNode(true);
+                btn.parentNode.replaceChild(newBtn, btn);
+                
+                newBtn.addEventListener('click', () => {
+                    const url = newBtn.dataset.url;
+                    const title = newBtn.dataset.title;
+                    const thumb = newBtn.dataset.thumb;
+                    download(url, title, thumb);
+                });
+            });
+        }
+
+        function loadTerminalState() {
+            try {
+                const savedFormat = localStorage.getItem(STORAGE_KEYS.FORMAT);
+                if (savedFormat) {
+                    format = savedFormat;
+                    document.querySelectorAll('.format-btn').forEach(b => {
+                        b.classList.toggle('active', b.dataset.format === format);
+                    });
+                }
+                
+                const savedHistory = localStorage.getItem(STORAGE_KEYS.COMMAND_HISTORY);
+                if (savedHistory) {
+                    commandHistory = JSON.parse(savedHistory);
+                    historyIndex = commandHistory.length;
+                }
+                
+                const savedContent = localStorage.getItem(STORAGE_KEYS.TERMINAL_CONTENT);
+                if (savedContent) {
+                    terminal.innerHTML = savedContent;
+                    reattachResultButtonListeners();
+                }
+                
+                const savedPlayers = localStorage.getItem(STORAGE_KEYS.ACTIVE_PLAYERS);
+                if (savedPlayers) {
+                    const playersData = JSON.parse(savedPlayers);
+                    playersData.forEach(([playerId, playerData]) => {
+                        activePlayers.set(playerId, playerData);
+                    });
+                    
+                    playersData.forEach(([playerId]) => {
+                        setTimeout(() => {
+                            try {
+                                initializePlayer(playerId);
+                            } catch (e) {
+                                console.error('Failed to re-initialize player:', playerId, e);
+                            }
+                        }, 100);
+                    });
+                }
+            } catch (e) {
+                console.error('Failed to load terminal state:', e);
+            }
+        }
+
+        function setupAutoSave() {
+            setInterval(() => {
+                if (terminal.children.length > 0) {
+                    saveTerminalState();
+                }
+            }, 2000);
+            
+            window.addEventListener('beforeunload', () => {
+                saveTerminalState();
+            });
+            
+            document.addEventListener('visibilitychange', () => {
+                if (document.hidden) {
+                    saveTerminalState();
+                }
+            });
+        }
+
+        function clearStoredState() {
+            try {
+                localStorage.removeItem(STORAGE_KEYS.TERMINAL_CONTENT);
+                localStorage.removeItem(STORAGE_KEYS.ACTIVE_PLAYERS);
+            } catch (e) {
+                console.error('Failed to clear stored state:', e);
+            }
+        }
+
+        window.addEventListener('load', () => {
+            loadTerminalState();
+            setupAutoSave();
+            cmdInput.focus();
+        });
+        
+        document.addEventListener('click', (e) => {
+            if (e.target === input || 
+                e.target.closest('.terminal-input') ||
+                e.target.closest('.media-player') ||
+                e.target.closest('.player-btn') ||
+                e.target.closest('.player-action-btn')) {
+                return;
+            }
+            cmdInput.focus();
+        });
+        
+        cmdLine.addEventListener('click', () => cmdInput.focus());
+
+        cmdInput.addEventListener('input', (e) => {
+            currentCommand = e.target.value;
+            cmdText.textContent = currentCommand;
+        });
+
+        cmdInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                executeCommand();
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                navigateHistory(-1);
+            } else if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                navigateHistory(1);
+            } else if (e.key === 'l' && e.ctrlKey) {
+                e.preventDefault();
+                clearTerminal();
+            }
+        });
+
+        const commands = {
+            help: () => showHelp(),
+            clear: () => clearTerminal(),
+            format: (args) => setFormat(args[0]),
+            search: (args) => searchVideo(args.join(' ')),
+            download: (args) => downloadURL(args.join(' ')),
+            fetch: (args) => downloadURL(args.join(' ')),
+            get: (args) => downloadURL(args.join(' ')),
+            system: (args) => systemCommand(args),
+            ls: () => executeShellCommand('ls -la'),
+            pwd: () => executeShellCommand('pwd'),
+            whoami: () => executeShellCommand('whoami'),
+            date: () => executeShellCommand('date'),
+            echo: (args) => executeShellCommand(`echo ${args.join(' ')}`),
+            uname: () => executeShellCommand('uname -a'),
+            history: () => showHistory(),
+            pkg: (args) => executeShellCommand(`pkg ${args.join(' ')}`),
+            apt: (args) => executeShellCommand(`apt ${args.join(' ')}`),
+            npm: (args) => executeShellCommand(`npm ${args.join(' ')}`),
+            node: (args) => executeShellCommand(`node ${args.join(' ')}`),
+            python: (args) => executeShellCommand(`python ${args.join(' ')}`),
+            pip: (args) => executeShellCommand(`pip ${args.join(' ')}`),
+            cat: (args) => executeShellCommand(`cat ${args.join(' ')}`),
+            mkdir: (args) => executeShellCommand(`mkdir ${args.join(' ')}`),
+            rm: (args) => executeShellCommand(`rm ${args.join(' ')}`),
+            cp: (args) => executeShellCommand(`cp ${args.join(' ')}`),
+            mv: (args) => executeShellCommand(`mv ${args.join(' ')}`),
+            chmod: (args) => executeShellCommand(`chmod ${args.join(' ')}`),
+            ps: () => executeShellCommand('ps aux'),
+            top: () => executeShellCommand('top -n 1'),
+            df: () => executeShellCommand('df -h'),
+            free: () => executeShellCommand('free -h'),
+            wget: (args) => executeShellCommand(`wget ${args.join(' ')}`),
+            curl: (args) => executeShellCommand(`curl ${args.join(' ')}`),
+            git: (args) => executeShellCommand(`git ${args.join(' ')}`)
+        };
+
+        function connectWS() {
+            ws = new WebSocket(`ws://${window.location.hostname}:3000`);
+            
+            ws.onopen = () => {
+                log('WebSocket connected', 'success');
+                statusDot.className = 'status-dot online';
+                updateStatus();
+            };
+            
+            ws.onmessage = (e) => {
+                const data = JSON.parse(e.data);
+                
+                if (data.type === 'success') {
+                    try {
+                        const fileInfo = JSON.parse(data.message);
+                        
+                        if (fileInfo.downloadUrl && fileInfo.filename) {
+                            const downloadData = pendingDownloads.get(data.downloadId);
+                            const title = fileInfo.title || (downloadData && downloadData.title) || 'Media';
+                            const thumbnail = fileInfo.thumbnail || (downloadData && downloadData.thumbnail) || '';
+                            
+                            createPlayerWithRetry(
+                                fileInfo.downloadUrl, 
+                                fileInfo.filename, 
+                                title, 
+                                thumbnail
+                            );
+                            
+                            if (downloadData) {
+                                pendingDownloads.delete(data.downloadId);
+                            }
+                            activeDownloads.delete(data.downloadId);
+                            updateStatus();
+                            
+                            return;
+                        }
+                    } catch (e) {
+                        // Not JSON
+                    }
+                }
+                
+                if (data.type === 'progress' && data.downloadId) {
+                    updateProgress(data.downloadId, data.message);
+                    return;
+                }
+                
+                if (data.type === 'warning' || data.type === 'error') {
+                    const msg = data.message.toLowerCase();
+                    if (msg.includes('unable to extract') || 
+                        msg.includes('falling back') ||
+                        msg.includes('assuming') ||
+                        msg.includes('certificate')) {
+                        return;
+                    }
+                    if (data.type === 'error' && !msg.includes('failed') && !msg.includes('error')) {
+                        return;
+                    }
+                }
+                
+                log(data.message, data.type);
+            };
+            
+            ws.onclose = () => {
+                log('Connection lost. Reconnecting...', 'error');
+                statusDot.className = 'status-dot offline';
+                statusText.textContent = 'OFFLINE';
+                setTimeout(connectWS, 3000);
+            };
+        }
+
+        function updateStatus() {
+            const count = activeDownloads.size;
+            if (count === 0) {
+                statusText.textContent = 'ONLINE';
+            } else {
+                statusText.textContent = `ONLINE [${count} ACTIVE]`;
+            }
+        }
+
+        connectWS();
+
+        function executeCommand() {
+            const cmdToExecute = currentCommand.trim();
+            if (!cmdToExecute) return;
+
+            commandHistory.push(cmdToExecute);
+            historyIndex = commandHistory.length;
+
+            showCommand(cmdToExecute);
+            
+            currentCommand = '';
+            cmdInput.value = '';
+            cmdText.textContent = '';
+
+            const parts = cmdToExecute.split(' ');
+            const cmd = parts[0].toLowerCase();
+            const args = parts.slice(1);
+
+            if (cmdToExecute.includes('youtube.com') || cmdToExecute.includes('youtu.be') || cmdToExecute.includes('tiktok.com')) {
+                downloadDirect(cmdToExecute);
+                return;
+            }
+
+            if (commands[cmd]) {
+                commands[cmd](args);
+            } else {
+                executeShellCommand(cmdToExecute);
+            }
+        }
+
+        function navigateHistory(direction) {
+            historyIndex += direction;
+            if (historyIndex < 0) historyIndex = 0;
+            if (historyIndex > commandHistory.length) historyIndex = commandHistory.length;
+
+            if (historyIndex < commandHistory.length) {
+                currentCommand = commandHistory[historyIndex];
+                cmdInput.value = currentCommand;
+                cmdText.textContent = currentCommand;
+            } else {
+                currentCommand = '';
+                cmdInput.value = '';
+                cmdText.textContent = '';
+            }
+        }
+
+        function showHistory() {
+            if (commandHistory.length === 0) {
+                log('No command history', 'info');
+                return;
+            }
+            commandHistory.forEach((cmd, i) => {
+                log(`${i + 1}  ${cmd}`, 'info');
+            });
+        }
+
+        async function systemCommand(args) {
+            const command = `system ${args.join(' ')}`;
+            await executeShellCommand(command);
+        }
+
+        async function executeShellCommand(command) {
+            try {
+                const res = await fetch('/execute', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ command })
+                });
+                
+                const data = await res.json();
+                if (!data.success) {
+                    log(`Failed to execute: ${command}`, 'error');
+                }
+            } catch (err) {
+                log(`Execution error: ${err.message}`, 'error');
+            }
+        }
+
+        document.querySelectorAll('.format-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.format-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                format = btn.dataset.format;
+                log(`Format set to: ${format.toUpperCase()}`, 'success');
+                saveTerminalState();
+            });
+        });
+
+        executeBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const searchQuery = input.value.trim();
+            const terminalCmd = currentCommand.trim();
+
+            if (searchQuery) {
+                execute();
+            } 
+            else if (terminalCmd) {
+                executeCommand();
+            }
+        });
+
+        input.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                execute();
+            }
+        });
+
+        input.addEventListener('focus', (e) => {
+            e.stopPropagation();
+        });
+
+        input.addEventListener('click', (e) => {
+            e.stopPropagation();
+            input.focus();
+        });
+
+        function execute() {
+            const query = input.value.trim();
+            if (!query) return;
+
+            log(`Searching: ${query}`, 'info');
+            input.value = '';
+            input.blur();
+
+            if (query.includes('youtube.com') || query.includes('youtu.be') || query.includes('tiktok.com')) {
+                downloadDirect(query);
+                return;
+            }
+
+            searchVideo(query);
+        }
+
+        function showCommand(cmd) {
+            const div = document.createElement('div');
+            div.className = 'command-line';
+            div.innerHTML = `<span class="prompt">$</span>${escape(cmd)}`;
+            terminal.appendChild(div);
+            scrollDown();
+        }
+
+        function showHelp() {
+            const help = document.createElement('div');
+            help.className = 'help-section';
+            help.innerHTML = `
+                <div class="help-title">NEIMAN TERMINAL COMMANDS</div>
+                <div class="help-item"><span class="help-cmd">help</span> - Show this help</div>
+                <div class="help-item"><span class="help-cmd">clear</span> - Clear terminal (keeps players)</div>
+                <div class="help-item"><span class="help-cmd">format [mp4|mp3]</span> - Set download format</div>
+                <div class="help-item"><span class="help-cmd">search [query]</span> - Search for videos</div>
+                <div class="help-item"><span class="help-cmd">download [url]</span> - Download from URL</div>
+                <div class="help-item"><span class="help-cmd">fetch [url]</span> - Alias for download</div>
+                <div class="help-item"><span class="help-cmd">get [url]</span> - Alias for download</div>
+                <div class="help-item"><span class="help-cmd">system install [pkg]</span> - Install package</div>
+                <div class="help-item"><span class="help-cmd">system update</span> - Update system</div>
+                <div class="help-item" style="margin-top: 8px; color: #00ff00;">SHELL COMMANDS:</div>
+                <div class="help-item"><span class="help-cmd">ls, pwd, whoami, date, echo, uname</span> - Unix commands</div>
+                <div class="help-item"><span class="help-cmd">pkg, apt, npm, node, python, pip</span> - Package managers</div>
+                <div class="help-item"><span class="help-cmd">cat, mkdir, rm, cp, mv, chmod</span> - File operations</div>
+                <div class="help-item"><span class="help-cmd">ps, top, df, free</span> - System info</div>
+                <div class="help-item"><span class="help-cmd">wget, curl, git</span> - Network tools</div>
+                <div class="help-item"><span class="help-cmd">history</span> - Show command history</div>
+                <div class="help-item" style="margin-top: 8px; color: #666;">Use ↑↓ arrows for command history</div>
+                <div class="help-item" style="color: #666;">Any unrecognized command will be executed as shell command</div>
+            `;
+            terminal.appendChild(help);
+            scrollDown();
+        }
+
+        function clearTerminal() {
+            const players = Array.from(document.querySelectorAll('.media-player'));
+            
+            terminal.innerHTML = '';
+            
+            players.forEach(player => {
+                terminal.appendChild(player);
+            });
+            
+            clearStoredState();
+            
+            log('Terminal cleared (players preserved)', 'success');
+            
+            saveTerminalState();
+        }
+
+        function setFormat(fmt) {
+            if (fmt === 'mp4' || fmt === 'mp3') {
+                format = fmt;
+                document.querySelectorAll('.format-btn').forEach(b => {
+                    b.classList.toggle('active', b.dataset.format === fmt);
+                });
+                log(`Format set to: ${fmt.toUpperCase()}`, 'success');
+                saveTerminalState();
+            } else {
+                log('Invalid format. Use: mp4 or mp3', 'error');
+            }
+        }
+
+        async function searchVideo(query) {
+            if (!query) {
+                log('Usage: search [query]', 'error');
+                return;
+            }
+
+            try {
+                log(`Searching for: "${query}"`, 'info');
+                const res = await fetch(`/search?q=${encodeURIComponent(query)}`);
+                const data = await res.json();
+
+                if (data.videos?.length) {
+                    log(`Found ${data.videos.length} results`, 'success');
+                    displayResults(data.videos);
+                } else {
+                    log('No results found', 'warning');
+                }
+            } catch (err) {
+                log(`Search failed: ${err.message}`, 'error');
+            }
+        }
+
+        function downloadURL(url) {
+            if (!url) {
+                log('Usage: download [url]', 'error');
+                return;
+            }
+            downloadDirect(url);
+        }
+
+        function createProgressBar(id, title) {
+            const div = document.createElement('div');
+            div.className = 'progress-bar';
+            div.id = `progress-${id}`;
+            div.innerHTML = `
+                <div class="progress-title">${escape(title)}</div>
+                <div class="progress-track">
+                    <div class="progress-fill" style="width: 0%"></div>
+                </div>
+                <div class="progress-stats">
+                    <span class="progress-percent">0%</span>
+                    <span class="progress-info">Initializing...</span>
+                </div>
+            `;
+            terminal.appendChild(div);
+            scrollDown();
+            return div;
+        }
+
+        function updateProgress(id, message) {
+            let bar = progressBars[id];
+            if (!bar) {
+                bar = createProgressBar(id, 'Downloading...');
+                progressBars[id] = bar;
+            }
+
+            const percentMatch = message.match(/(\d+\.?\d*)%/);
+            const speedMatch = message.match(/at\s+([\d.]+\s*[KMG]?i?B\/s)/i);
+            const etaMatch = message.match(/ETA\s+([\d:]+)/);
+            
+            if (percentMatch) {
+                const percent = parseFloat(percentMatch[1]);
+                const fill = bar.querySelector('.progress-fill');
+                const percentEl = bar.querySelector('.progress-percent');
+                const infoEl = bar.querySelector('.progress-info');
+                
+                if (fill && percentEl) {
+                    fill.style.width = `${percent}%`;
+                    percentEl.textContent = `${percent.toFixed(1)}%`;
+                }
+                
+                if (infoEl) {
+                    let info = '';
+                    if (speedMatch) info += speedMatch[1];
+                    if (etaMatch) info += ` • ETA ${etaMatch[1]}`;
+                    if (info) infoEl.textContent = info;
+                }
+
+                if (percent >= 100) {
+                    setTimeout(() => {
+                        bar.remove();
+                        delete progressBars[id];
+                    }, 2000);
+                }
+            }
+        }
+
+        function displayResults(videos) {
+            videos.forEach(v => {
+                const div = document.createElement('div');
+                div.className = 'result-item';
+                div.innerHTML = `
+                    <img src="${v.thumbnail}" class="result-thumb" onerror="this.style.display='none'">
+                    <div class="result-content">
+                        <div class="result-title">${escape(v.title)}</div>
+                        <div class="result-meta">${escape(v.author.name)} • ${v.timestamp}</div>
+                        <button class="result-btn" data-url="${escape(v.url)}" data-title="${escape(v.title)}" data-thumb="${escape(v.thumbnail)}">
+                            <i class="fas fa-download"></i> ${format.toUpperCase()}
+                        </button>
+                    </div>
+                `;
+                
+                const btn = div.querySelector('.result-btn');
+                btn.addEventListener('click', () => {
+                    download(btn.dataset.url, btn.dataset.title, btn.dataset.thumb);
+                });
+                
+                terminal.appendChild(div);
+            });
+            scrollDown();
+        }
+
+        async function downloadDirect(url) {
+            const downloadId = Date.now().toString();
+            activeDownloads.add(downloadId);
+            updateStatus();
+            
+            log(`[${downloadId.slice(-4)}] Resolving URL...`, 'progress');
+            
+            const isTikTok = url.includes('tiktok');
+            const endpoint = isTikTok 
+                ? `/download?url=${encodeURIComponent(url)}`
+                : `/download?q=${encodeURIComponent(url)}&format=${format}`;
+
+            try {
+                const res = await fetch(endpoint);
+                const data = await res.json();
+                if (data.success) {
+                    pendingDownloads.set(data.downloadId, { url, format, title: 'Media' });
+                    log(`[${data.downloadId.slice(-4)}] Download started (ID: ${data.downloadId.slice(-4)})`, 'success');
+                }
+            } catch (err) {
+                activeDownloads.delete(downloadId);
+                updateStatus();
+                log(`[${downloadId.slice(-4)}] Error: ${err.message}`, 'error');
+            }
+        }
+
+        async function download(url, title, thumbnail = '') {
+            const downloadId = Date.now().toString();
+            activeDownloads.add(downloadId);
+            updateStatus();
+            
+            log(`[${downloadId.slice(-4)}] Initiating: ${title}`, 'info');
+            
+            try {
+                const res = await fetch(`/download?q=${encodeURIComponent(url)}&format=${format}`);
+                const data = await res.json();
+                if (data.success) {
+                    pendingDownloads.set(data.downloadId, { url, format, title, thumbnail });
+                    log(`[${data.downloadId.slice(-4)}] Download started`, 'success');
+                }
+            } catch (err) {
+                activeDownloads.delete(downloadId);
+                updateStatus();
+                log(`[${downloadId.slice(-4)}] Error: ${err.message}`, 'error');
+            }
+        }
+
+        function createPlayerWithRetry(url, filename, title, thumbnail, attempt = 0) {
+            const maxAttempts = 3;
+            
+            try {
+                showPreview(url, filename, title, thumbnail);
+            } catch (error) {
+                console.error(`Player creation attempt ${attempt + 1} failed:`, error);
+                
+                if (attempt < maxAttempts) {
+                    setTimeout(() => {
+                        createPlayerWithRetry(url, filename, title, thumbnail, attempt + 1);
+                    }, 500 * (attempt + 1));
+                } else {
+                    log(`Failed to create player after ${maxAttempts} attempts`, 'error');
+                }
+            }
+        }
+
+        function showPreview(url, filename, title, thumbnail = '') {
+            const playerId = `player-${Date.now()}`;
+            const div = document.createElement('div');
+            div.className = 'media-player';
+            div.id = playerId;
+            div.setAttribute('data-fullscreen', 'false');
+            
+            const isAudio = format === 'mp3' || filename.endsWith('.mp3');
+            
+            const audioThumb = thumbnail || 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="160" height="120"%3E%3Crect fill="%23000" width="160" height="120"/%3E%3Ctext x="50%25" y="50%25" fill="%23ff8c00" font-size="40" text-anchor="middle" dy=".3em"%3E♪%3C/text%3E%3C/svg%3E';
+            
+            const videoPoster = thumbnail || 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="160" height="120"%3E%3Crect fill="%23000" width="160" height="120"/%3E%3Ctext x="50%25" y="50%25" fill="%23ff8c00" font-size="40" text-anchor="middle" dy=".3em"%3E▶%3C/text%3E%3C/svg%3E';
+            
+            div.innerHTML = `
+                <div class="media-left">
+                    <div class="media-title">▶ ${escape(title)}</div>
+                    <div class="media-container">
+                        ${isAudio ? `
+                            <img src="${audioThumb}" class="audio-thumbnail" alt="Audio">
+                            <audio id="${playerId}-media" src="${url}" preload="metadata"></audio>
+                        ` : `
+                            <video id="${playerId}-media" src="${url}" poster="${videoPoster}" preload="metadata" playsinline></video>
+                        `}
+                    </div>
+                </div>
+                <div class="media-right">
+                    <div class="player-controls">
+                        <div class="player-time">
+                            <span id="${playerId}-current">0:00</span>
+                            <span id="${playerId}-duration">0:00</span>
+                        </div>
+                        <div class="player-seek" id="${playerId}-seek">
+                            <div class="player-seek-bar" id="${playerId}-seek-bar"></div>
+                        </div>
+                        <div class="player-buttons">
+                            <button class="player-btn" id="${playerId}-backward" title="Backward 10s">
+                                <i class="fas fa-backward"></i>
+                            </button>
+                            <button class="player-btn" id="${playerId}-play" title="Play/Pause">
+                                <i class="fas fa-play"></i>
+                            </button>
+                            <button class="player-btn" id="${playerId}-stop" title="Stop">
+                                <i class="fas fa-stop"></i>
+                            </button>
+                            <button class="player-btn" id="${playerId}-forward" title="Forward 10s">
+                                <i class="fas fa-forward"></i>
+                            </button>
+                            <button class="player-btn" id="${playerId}-volume" title="Mute/Unmute">
+                                <i class="fas fa-volume-up"></i>
+                            </button>
+                            <button class="player-btn" id="${playerId}-fullscreen" title="Fullscreen">
+                                <i class="fas fa-expand"></i>
+                            </button>
+                        </div>
+                        <div class="player-actions">
+                            <button class="player-action-btn" id="${playerId}-close">
+                                <i class="fas fa-times"></i> CLOSE
+                            </button>
+                            <a class="player-action-btn download" href="${url}" download="${filename}">
+                                <i class="fas fa-download"></i> SAVE
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            terminal.appendChild(div);
+            
+            log(`Download complete: ${filename}`, 'success');
+            scrollDown();
+            
+            activePlayers.set(playerId, { url, filename, title, thumbnail });
+            
+            saveTerminalState();
+            
+            setTimeout(() => {
+                try {
+                    initializePlayer(playerId);
+                } catch (error) {
+                    console.error('Failed to initialize player:', error);
+                    setTimeout(() => {
+                        initializePlayer(playerId);
+                    }, 1000);
+                }
+            }, 100);
+        }
+
+        function initializePlayer(playerId) {
+            const media = document.getElementById(`${playerId}-media`);
+            const playBtn = document.getElementById(`${playerId}-play`);
+            const stopBtn = document.getElementById(`${playerId}-stop`);
+            const backwardBtn = document.getElementById(`${playerId}-backward`);
+            const forwardBtn = document.getElementById(`${playerId}-forward`);
+            const volumeBtn = document.getElementById(`${playerId}-volume`);
+            const fullscreenBtn = document.getElementById(`${playerId}-fullscreen`);
+            const closeBtn = document.getElementById(`${playerId}-close`);
+            const seekBar = document.getElementById(`${playerId}-seek-bar`);
+            const seekContainer = document.getElementById(`${playerId}-seek`);
+            const currentTimeEl = document.getElementById(`${playerId}-current`);
+            const durationEl = document.getElementById(`${playerId}-duration`);
+
+            if (!media || !playBtn) {
+                console.error('Player elements not found:', playerId);
+                return;
+            }
+
+            let isMuted = false;
+            let isFullscreen = false;
+
+            const handlePlayPause = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                if (media.paused) {
+                    media.play().catch(err => console.error('Play failed:', err));
+                    playBtn.innerHTML = '<i class="fas fa-pause"></i>';
+                    playBtn.classList.add('playing');
+                } else {
+                    media.pause();
+                    playBtn.innerHTML = '<i class="fas fa-play"></i>';
+                    playBtn.classList.remove('playing');
+                }
+            };
+            playBtn.addEventListener('click', handlePlayPause);
+            playBtn.addEventListener('touchstart', handlePlayPause);
+
+            const handleStop = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                media.pause();
+                media.currentTime = 0;
+                playBtn.innerHTML = '<i class="fas fa-play"></i>';
+                playBtn.classList.remove('playing');
+            };
+            stopBtn.addEventListener('click', handleStop);
+            stopBtn.addEventListener('touchstart', handleStop);
+
+            const handleBackward = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                media.currentTime = Math.max(0, media.currentTime - 10);
+            };
+            backwardBtn.addEventListener('click', handleBackward);
+            backwardBtn.addEventListener('touchstart', handleBackward);
+
+            const handleForward = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                media.currentTime = Math.min(media.duration || 0, media.currentTime + 10);
+            };
+            forwardBtn.addEventListener('click', handleForward);
+            forwardBtn.addEventListener('touchstart', handleForward);
+
+            const handleVolume = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                isMuted = !isMuted;
+                media.muted = isMuted;
+                volumeBtn.innerHTML = isMuted 
+                    ? '<i class="fas fa-volume-mute"></i>' 
+                    : '<i class="fas fa-volume-up"></i>';
+            };
+            volumeBtn.addEventListener('click', handleVolume);
+            volumeBtn.addEventListener('touchstart', handleVolume);
+
+            // NEW FULLSCREEN IMPLEMENTATION
+            const handleFullscreen = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                const playerElement = document.getElementById(playerId);
+                isFullscreen = !isFullscreen;
+                
+                if (isFullscreen) {
+                    // Enter fullscreen
+                    playerElement.setAttribute('data-fullscreen', 'true');
+                    fullscreenBtn.innerHTML = '<i class="fas fa-compress"></i>';
+                    fullscreenBtn.classList.add('fullscreen-active');
+                    
+                    // Also try native fullscreen API
+                    if (playerElement.requestFullscreen) {
+                        playerElement.requestFullscreen().catch(() => {});
+                    } else if (playerElement.webkitRequestFullscreen) {
+                        playerElement.webkitRequestFullscreen();
+                    } else if (media.webkitEnterFullscreen) {
+                        media.webkitEnterFullscreen();
+                    }
+                } else {
+                    // Exit fullscreen
+                    playerElement.setAttribute('data-fullscreen', 'false');
+                    fullscreenBtn.innerHTML = '<i class="fas fa-expand"></i>';
+                    fullscreenBtn.classList.remove('fullscreen-active');
+                    
+                    // Also try native fullscreen API
+                    if (document.exitFullscreen) {
+                        document.exitFullscreen().catch(() => {});
+                    } else if (document.webkitExitFullscreen) {
+                        document.webkitExitFullscreen();
+                    }
+                }
+            };
+            fullscreenBtn.addEventListener('click', handleFullscreen);
+            fullscreenBtn.addEventListener('touchstart', handleFullscreen);
+
+            // Listen for native fullscreen changes
+            const handleFullscreenChange = () => {
+                const playerElement = document.getElementById(playerId);
+                if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+                    // Exited native fullscreen
+                    isFullscreen = false;
+                    playerElement.setAttribute('data-fullscreen', 'false');
+                    fullscreenBtn.innerHTML = '<i class="fas fa-expand"></i>';
+                    fullscreenBtn.classList.remove('fullscreen-active');
+                }
+            };
+            document.addEventListener('fullscreenchange', handleFullscreenChange);
+            document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+
+            const handleClose = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                closePlayer(playerId);
+            };
+            closeBtn.addEventListener('click', handleClose);
+            closeBtn.addEventListener('touchstart', handleClose);
+
+            const handleSeek = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                const rect = seekContainer.getBoundingClientRect();
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                const percent = (clientX - rect.left) / rect.width;
+                media.currentTime = percent * (media.duration || 0);
+            };
+            seekContainer.addEventListener('click', handleSeek);
+            seekContainer.addEventListener('touchstart', handleSeek);
+
+            media.addEventListener('timeupdate', () => {
+                if (media.duration) {
+                    const percent = (media.currentTime / media.duration) * 100;
+                    seekBar.style.width = `${percent}%`;
+                    currentTimeEl.textContent = formatTime(media.currentTime);
+                }
+            });
+
+            media.addEventListener('loadedmetadata', () => {
+                durationEl.textContent = formatTime(media.duration);
+            });
+
+            media.addEventListener('ended', () => {
+                playBtn.innerHTML = '<i class="fas fa-play"></i>';
+                playBtn.classList.remove('playing');
+            });
+
+            media.addEventListener('error', (e) => {
+                console.error('Media load error:', e);
+                log(`Player error: Failed to load media for ${playerId}`, 'error');
+            });
+        }
+
+        function formatTime(seconds) {
+            if (!seconds || isNaN(seconds)) return '0:00';
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${mins}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        function closePlayer(playerId) {
+            const player = document.getElementById(playerId);
+            const media = document.getElementById(`${playerId}-media`);
+            if (media) {
+                media.pause();
+                media.src = '';
+                media.load();
+            }
+            if (player) {
+                player.remove();
+            }
+            activePlayers.delete(playerId);
+            log('Player closed', 'info');
+            
+            saveTerminalState();
+        }
+
+        function log(msg, type = 'info') {
+            const div = document.createElement('div');
+            div.className = `log-line log-${type}`;
+            const time = new Date().toLocaleTimeString();
+            div.innerHTML = `<span class="log-time">[${time}]</span><span>${escape(msg)}</span>`;
+            terminal.appendChild(div);
+            scrollDown();
+        }
+
+        function scrollDown() {
+            setTimeout(() => {
+                terminal.scrollTop = terminal.scrollHeight;
+            }, 100);
+        }
+
+        function escape(str) {
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,6 @@
+Package: neiman
+Version: 1.0.0
+Architecture: all
+Maintainer: YourName engineermarcus72@gmail.com
+Depends: nodejs, ffmpeg, python, python-pip
+Description: Express server for TikTok and YouTube downloads via yt-dlp.
