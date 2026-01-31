@@ -273,6 +273,8 @@
             margin-top: auto;
             white-space: nowrap;
             align-self: flex-start;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
         }
 
         .result-btn:active {
@@ -330,6 +332,7 @@
         .media-container video {
             width: 100%;
             display: block;
+            background: #000;
         }
 
         .media-container audio {
@@ -342,6 +345,14 @@
             object-fit: cover;
             display: block;
             opacity: 0.8;
+        }
+
+        .video-thumbnail {
+            width: 160px;
+            height: 120px;
+            object-fit: cover;
+            display: block;
+            opacity: 0.9;
         }
 
         .media-right {
@@ -375,6 +386,7 @@
             margin-bottom: 8px;
             position: relative;
             cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .player-seek-bar {
@@ -387,22 +399,25 @@
         .player-buttons {
             display: flex;
             gap: 2px;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
         }
 
         .player-btn {
             flex: 1;
-            padding: 8px 4px;
+            padding: 6px 2px;
             background: #1a1a1a;
             border: none;
             color: #666;
             font-family: inherit;
-            font-size: 14px;
+            font-size: 12px;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
             transition: all 0.1s;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+            min-height: 28px;
         }
 
         .player-btn:hover {
@@ -420,6 +435,11 @@
             color: #000;
         }
 
+        .player-btn.fullscreen-active {
+            background: #00ff00;
+            color: #000;
+        }
+
         .player-actions {
             display: flex;
             gap: 2px;
@@ -428,21 +448,24 @@
 
         .player-action-btn {
             flex: 1;
-            padding: 8px;
+            padding: 6px;
             border: none;
             background: #1a1a1a;
             color: #666;
             font-family: inherit;
             font-weight: bold;
-            font-size: 10px;
+            font-size: 9px;
             cursor: pointer;
             text-decoration: none;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 4px;
+            gap: 3px;
             text-transform: uppercase;
             transition: all 0.1s;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+            min-height: 28px;
         }
 
         .player-action-btn:hover {
@@ -483,6 +506,8 @@
             align-items: center;
             justify-content: center;
             gap: 6px;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
         }
 
         .preview-btn.download {
@@ -522,6 +547,8 @@
             align-items: center;
             justify-content: center;
             gap: 6px;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
         }
 
         .format-btn.active {
@@ -605,6 +632,92 @@
         .help-cmd {
             color: #ff8c00;
         }
+
+        /* FULLSCREEN STYLES - THIS IS THE FIX */
+        .media-player[data-fullscreen="true"] {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            z-index: 99999 !important;
+            background: #000 !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            border: none !important;
+            display: block !important;
+        }
+
+        .media-player[data-fullscreen="true"] .media-left {
+            position: absolute !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+        }
+
+        .media-player[data-fullscreen="true"] .media-container {
+            position: absolute !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+        }
+
+        .media-player[data-fullscreen="true"] .media-container video,
+        .media-player[data-fullscreen="true"] .media-container audio {
+            position: relative !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            object-fit: contain !important;
+        }
+
+        .media-player[data-fullscreen="true"] .audio-thumbnail {
+            max-width: 80vw !important;
+            max-height: 80vh !important;
+            width: auto !important;
+            height: auto !important;
+        }
+
+        .media-player[data-fullscreen="true"] .media-right {
+            position: absolute !important;
+            bottom: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            width: 100% !important;
+            padding: 20px !important;
+            background: linear-gradient(to top, rgba(0,0,0,0.95), rgba(0,0,0,0.7)) !important;
+            z-index: 10 !important;
+        }
+
+        .media-player[data-fullscreen="true"] .media-title {
+            position: absolute !important;
+            top: 20px !important;
+            left: 20px !important;
+            right: 20px !important;
+            z-index: 10 !important;
+            text-align: center !important;
+            font-size: 18px !important;
+        }
+
+        .media-player[data-fullscreen="true"] .player-btn {
+            min-height: 50px !important;
+            font-size: 18px !important;
+        }
+
+        .media-player[data-fullscreen="true"] .player-action-btn {
+            min-height: 50px !important;
+            font-size: 14px !important;
+        }
     </style>
 </head>
 <body>
@@ -677,6 +790,7 @@
         let currentCommand = '';
         let activeDownloads = new Set();
         let pendingDownloads = new Map();
+        let activePlayers = new Map();
 
         const terminal = document.getElementById('terminal');
         const input = document.getElementById('input');
@@ -687,12 +801,124 @@
         const statusDot = document.getElementById('statusDot');
         const statusText = document.getElementById('statusText');
 
-        // Auto-focus the hidden input on page load and clicks (but not on search input)
-        window.addEventListener('load', () => cmdInput.focus());
+        const STORAGE_KEYS = {
+            TERMINAL_CONTENT: 'neiman_terminal_content',
+            COMMAND_HISTORY: 'neiman_command_history',
+            ACTIVE_PLAYERS: 'neiman_active_players',
+            FORMAT: 'neiman_format'
+        };
+
+        function saveTerminalState() {
+            try {
+                localStorage.setItem(STORAGE_KEYS.TERMINAL_CONTENT, terminal.innerHTML);
+                localStorage.setItem(STORAGE_KEYS.COMMAND_HISTORY, JSON.stringify(commandHistory));
+                const playersData = Array.from(activePlayers.entries());
+                localStorage.setItem(STORAGE_KEYS.ACTIVE_PLAYERS, JSON.stringify(playersData));
+                localStorage.setItem(STORAGE_KEYS.FORMAT, format);
+            } catch (e) {
+                console.error('Failed to save terminal state:', e);
+            }
+        }
+
+        function reattachResultButtonListeners() {
+            const resultButtons = document.querySelectorAll('.result-btn');
+            
+            resultButtons.forEach(btn => {
+                const newBtn = btn.cloneNode(true);
+                btn.parentNode.replaceChild(newBtn, btn);
+                
+                newBtn.addEventListener('click', () => {
+                    const url = newBtn.dataset.url;
+                    const title = newBtn.dataset.title;
+                    const thumb = newBtn.dataset.thumb;
+                    download(url, title, thumb);
+                });
+            });
+        }
+
+        function loadTerminalState() {
+            try {
+                const savedFormat = localStorage.getItem(STORAGE_KEYS.FORMAT);
+                if (savedFormat) {
+                    format = savedFormat;
+                    document.querySelectorAll('.format-btn').forEach(b => {
+                        b.classList.toggle('active', b.dataset.format === format);
+                    });
+                }
+                
+                const savedHistory = localStorage.getItem(STORAGE_KEYS.COMMAND_HISTORY);
+                if (savedHistory) {
+                    commandHistory = JSON.parse(savedHistory);
+                    historyIndex = commandHistory.length;
+                }
+                
+                const savedContent = localStorage.getItem(STORAGE_KEYS.TERMINAL_CONTENT);
+                if (savedContent) {
+                    terminal.innerHTML = savedContent;
+                    reattachResultButtonListeners();
+                }
+                
+                const savedPlayers = localStorage.getItem(STORAGE_KEYS.ACTIVE_PLAYERS);
+                if (savedPlayers) {
+                    const playersData = JSON.parse(savedPlayers);
+                    playersData.forEach(([playerId, playerData]) => {
+                        activePlayers.set(playerId, playerData);
+                    });
+                    
+                    playersData.forEach(([playerId]) => {
+                        setTimeout(() => {
+                            try {
+                                initializePlayer(playerId);
+                            } catch (e) {
+                                console.error('Failed to re-initialize player:', playerId, e);
+                            }
+                        }, 100);
+                    });
+                }
+            } catch (e) {
+                console.error('Failed to load terminal state:', e);
+            }
+        }
+
+        function setupAutoSave() {
+            setInterval(() => {
+                if (terminal.children.length > 0) {
+                    saveTerminalState();
+                }
+            }, 2000);
+            
+            window.addEventListener('beforeunload', () => {
+                saveTerminalState();
+            });
+            
+            document.addEventListener('visibilitychange', () => {
+                if (document.hidden) {
+                    saveTerminalState();
+                }
+            });
+        }
+
+        function clearStoredState() {
+            try {
+                localStorage.removeItem(STORAGE_KEYS.TERMINAL_CONTENT);
+                localStorage.removeItem(STORAGE_KEYS.ACTIVE_PLAYERS);
+            } catch (e) {
+                console.error('Failed to clear stored state:', e);
+            }
+        }
+
+        window.addEventListener('load', () => {
+            loadTerminalState();
+            setupAutoSave();
+            cmdInput.focus();
+        });
         
         document.addEventListener('click', (e) => {
-            // Don't steal focus from search input
-            if (e.target === input || e.target.closest('.terminal-input')) {
+            if (e.target === input || 
+                e.target.closest('.terminal-input') ||
+                e.target.closest('.media-player') ||
+                e.target.closest('.player-btn') ||
+                e.target.closest('.player-action-btn')) {
                 return;
             }
             cmdInput.focus();
@@ -700,7 +926,6 @@
         
         cmdLine.addEventListener('click', () => cmdInput.focus());
 
-        // Handle all keyboard input
         cmdInput.addEventListener('input', (e) => {
             currentCommand = e.target.value;
             cmdText.textContent = currentCommand;
@@ -771,49 +996,53 @@
             ws.onmessage = (e) => {
                 const data = JSON.parse(e.data);
                 
-                // Handle download completion with file info
-                if (data.type === 'success' && data.message.startsWith('{')) {
+                if (data.type === 'success') {
                     try {
                         const fileInfo = JSON.parse(data.message);
+                        
                         if (fileInfo.downloadUrl && fileInfo.filename) {
                             const downloadData = pendingDownloads.get(data.downloadId);
+                            const title = fileInfo.title || (downloadData && downloadData.title) || 'Media';
+                            const thumbnail = fileInfo.thumbnail || (downloadData && downloadData.thumbnail) || '';
+                            
+                            createPlayerWithRetry(
+                                fileInfo.downloadUrl, 
+                                fileInfo.filename, 
+                                title, 
+                                thumbnail
+                            );
+                            
                             if (downloadData) {
-                                showPreview(fileInfo.downloadUrl, fileInfo.filename, fileInfo.title, fileInfo.thumbnail);
                                 pendingDownloads.delete(data.downloadId);
-                                activeDownloads.delete(data.downloadId);
-                                updateStatus();
                             }
+                            activeDownloads.delete(data.downloadId);
+                            updateStatus();
+                            
                             return;
                         }
                     } catch (e) {
-                        // Not JSON, continue normal processing
+                        // Not JSON
                     }
                 }
                 
-                // Handle download progress
                 if (data.type === 'progress' && data.downloadId) {
                     updateProgress(data.downloadId, data.message);
-                    return; // Don't log progress lines
+                    return;
                 }
                 
-                // Filter out excessive warnings and errors from yt-dlp
                 if (data.type === 'warning' || data.type === 'error') {
                     const msg = data.message.toLowerCase();
-                    // Skip common harmless warnings
                     if (msg.includes('unable to extract') || 
                         msg.includes('falling back') ||
-                        msg.includes('requested format') ||
                         msg.includes('assuming') ||
                         msg.includes('certificate')) {
                         return;
                     }
-                    // Only show critical errors
                     if (data.type === 'error' && !msg.includes('failed') && !msg.includes('error')) {
                         return;
                     }
                 }
                 
-                // Show message for all other operations
                 log(data.message, data.type);
             };
             
@@ -840,34 +1069,27 @@
             const cmdToExecute = currentCommand.trim();
             if (!cmdToExecute) return;
 
-            // Add to history
             commandHistory.push(cmdToExecute);
             historyIndex = commandHistory.length;
 
-            // Show command in terminal
             showCommand(cmdToExecute);
             
-            // Clear input
             currentCommand = '';
             cmdInput.value = '';
             cmdText.textContent = '';
 
-            // Parse command
             const parts = cmdToExecute.split(' ');
             const cmd = parts[0].toLowerCase();
             const args = parts.slice(1);
 
-            // Check if it's a URL
             if (cmdToExecute.includes('youtube.com') || cmdToExecute.includes('youtu.be') || cmdToExecute.includes('tiktok.com')) {
                 downloadDirect(cmdToExecute);
                 return;
             }
 
-            // Execute command
             if (commands[cmd]) {
                 commands[cmd](args);
             } else {
-                // Try to execute as shell command
                 executeShellCommand(cmdToExecute);
             }
         }
@@ -898,7 +1120,6 @@
             });
         }
 
-        // Shell integration functions
         async function systemCommand(args) {
             const command = `system ${args.join(' ')}`;
             await executeShellCommand(command);
@@ -916,39 +1137,34 @@
                 if (!data.success) {
                     log(`Failed to execute: ${command}`, 'error');
                 }
-                // Output will come through WebSocket
             } catch (err) {
                 log(`Execution error: ${err.message}`, 'error');
             }
         }
 
-        // Search box handling
         document.querySelectorAll('.format-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 document.querySelectorAll('.format-btn').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
                 format = btn.dataset.format;
                 log(`Format set to: ${format.toUpperCase()}`, 'success');
+                saveTerminalState();
             });
         });
 
-        // Execute button handles both search input and terminal commands
         executeBtn.addEventListener('click', (e) => {
             e.preventDefault();
             const searchQuery = input.value.trim();
             const terminalCmd = currentCommand.trim();
 
-            // If search input has content, execute search
             if (searchQuery) {
                 execute();
             } 
-            // Otherwise execute terminal command
             else if (terminalCmd) {
                 executeCommand();
             }
         });
 
-        // Search input Enter key
         input.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
                 e.preventDefault();
@@ -956,7 +1172,6 @@
             }
         });
 
-        // Make search input work on mobile
         input.addEventListener('focus', (e) => {
             e.stopPropagation();
         });
@@ -996,7 +1211,7 @@
             help.innerHTML = `
                 <div class="help-title">NEIMAN TERMINAL COMMANDS</div>
                 <div class="help-item"><span class="help-cmd">help</span> - Show this help</div>
-                <div class="help-item"><span class="help-cmd">clear</span> - Clear terminal</div>
+                <div class="help-item"><span class="help-cmd">clear</span> - Clear terminal (keeps players)</div>
                 <div class="help-item"><span class="help-cmd">format [mp4|mp3]</span> - Set download format</div>
                 <div class="help-item"><span class="help-cmd">search [query]</span> - Search for videos</div>
                 <div class="help-item"><span class="help-cmd">download [url]</span> - Download from URL</div>
@@ -1019,8 +1234,19 @@
         }
 
         function clearTerminal() {
+            const players = Array.from(document.querySelectorAll('.media-player'));
+            
             terminal.innerHTML = '';
-            log('Terminal cleared', 'success');
+            
+            players.forEach(player => {
+                terminal.appendChild(player);
+            });
+            
+            clearStoredState();
+            
+            log('Terminal cleared (players preserved)', 'success');
+            
+            saveTerminalState();
         }
 
         function setFormat(fmt) {
@@ -1030,6 +1256,7 @@
                     b.classList.toggle('active', b.dataset.format === fmt);
                 });
                 log(`Format set to: ${fmt.toUpperCase()}`, 'success');
+                saveTerminalState();
             } else {
                 log('Invalid format. Use: mp4 or mp3', 'error');
             }
@@ -1091,7 +1318,6 @@
                 progressBars[id] = bar;
             }
 
-            // Parse yt-dlp progress format: [download]  45.2% of ~10.5MiB at 1.2MiB/s ETA 00:05
             const percentMatch = message.match(/(\d+\.?\d*)%/);
             const speedMatch = message.match(/at\s+([\d.]+\s*[KMG]?i?B\/s)/i);
             const etaMatch = message.match(/ETA\s+([\d:]+)/);
@@ -1114,7 +1340,6 @@
                     if (info) infoEl.textContent = info;
                 }
 
-                // Auto-remove when complete
                 if (percent >= 100) {
                     setTimeout(() => {
                         bar.remove();
@@ -1133,11 +1358,17 @@
                     <div class="result-content">
                         <div class="result-title">${escape(v.title)}</div>
                         <div class="result-meta">${escape(v.author.name)} • ${v.timestamp}</div>
-                        <button class="result-btn" onclick="download('${escape(v.url)}', '${escape(v.title)}', '${escape(v.thumbnail)}')">
+                        <button class="result-btn" data-url="${escape(v.url)}" data-title="${escape(v.title)}" data-thumb="${escape(v.thumbnail)}">
                             <i class="fas fa-download"></i> ${format.toUpperCase()}
                         </button>
                     </div>
                 `;
+                
+                const btn = div.querySelector('.result-btn');
+                btn.addEventListener('click', () => {
+                    download(btn.dataset.url, btn.dataset.title, btn.dataset.thumb);
+                });
+                
                 terminal.appendChild(div);
             });
             scrollDown();
@@ -1159,7 +1390,7 @@
                 const res = await fetch(endpoint);
                 const data = await res.json();
                 if (data.success) {
-                    pendingDownloads.set(data.downloadId, { url, format });
+                    pendingDownloads.set(data.downloadId, { url, format, title: 'Media' });
                     log(`[${data.downloadId.slice(-4)}] Download started (ID: ${data.downloadId.slice(-4)})`, 'success');
                 }
             } catch (err) {
@@ -1190,16 +1421,36 @@
             }
         }
 
+        function createPlayerWithRetry(url, filename, title, thumbnail, attempt = 0) {
+            const maxAttempts = 3;
+            
+            try {
+                showPreview(url, filename, title, thumbnail);
+            } catch (error) {
+                console.error(`Player creation attempt ${attempt + 1} failed:`, error);
+                
+                if (attempt < maxAttempts) {
+                    setTimeout(() => {
+                        createPlayerWithRetry(url, filename, title, thumbnail, attempt + 1);
+                    }, 500 * (attempt + 1));
+                } else {
+                    log(`Failed to create player after ${maxAttempts} attempts`, 'error');
+                }
+            }
+        }
+
         function showPreview(url, filename, title, thumbnail = '') {
             const playerId = `player-${Date.now()}`;
             const div = document.createElement('div');
             div.className = 'media-player';
             div.id = playerId;
+            div.setAttribute('data-fullscreen', 'false');
             
-            const isAudio = format === 'mp3';
+            const isAudio = format === 'mp3' || filename.endsWith('.mp3');
             
-            // For audio, show thumbnail or default image
             const audioThumb = thumbnail || 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="160" height="120"%3E%3Crect fill="%23000" width="160" height="120"/%3E%3Ctext x="50%25" y="50%25" fill="%23ff8c00" font-size="40" text-anchor="middle" dy=".3em"%3E♪%3C/text%3E%3C/svg%3E';
+            
+            const videoPoster = thumbnail || 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="160" height="120"%3E%3Crect fill="%23000" width="160" height="120"/%3E%3Ctext x="50%25" y="50%25" fill="%23ff8c00" font-size="40" text-anchor="middle" dy=".3em"%3E▶%3C/text%3E%3C/svg%3E';
             
             div.innerHTML = `
                 <div class="media-left">
@@ -1207,9 +1458,9 @@
                     <div class="media-container">
                         ${isAudio ? `
                             <img src="${audioThumb}" class="audio-thumbnail" alt="Audio">
-                            <audio id="${playerId}-media" src="${url}"></audio>
+                            <audio id="${playerId}-media" src="${url}" preload="metadata"></audio>
                         ` : `
-                            <video id="${playerId}-media" src="${url}" playsinline></video>
+                            <video id="${playerId}-media" src="${url}" poster="${videoPoster}" preload="metadata" playsinline></video>
                         `}
                     </div>
                 </div>
@@ -1238,9 +1489,12 @@
                             <button class="player-btn" id="${playerId}-volume" title="Mute/Unmute">
                                 <i class="fas fa-volume-up"></i>
                             </button>
+                            <button class="player-btn" id="${playerId}-fullscreen" title="Fullscreen">
+                                <i class="fas fa-expand"></i>
+                            </button>
                         </div>
                         <div class="player-actions">
-                            <button class="player-action-btn" onclick="closePlayer('${playerId}')">
+                            <button class="player-action-btn" id="${playerId}-close">
                                 <i class="fas fa-times"></i> CLOSE
                             </button>
                             <a class="player-action-btn download" href="${url}" download="${filename}">
@@ -1252,11 +1506,24 @@
             `;
             
             terminal.appendChild(div);
+            
             log(`Download complete: ${filename}`, 'success');
             scrollDown();
             
-            // Initialize player controls
-            initializePlayer(playerId);
+            activePlayers.set(playerId, { url, filename, title, thumbnail });
+            
+            saveTerminalState();
+            
+            setTimeout(() => {
+                try {
+                    initializePlayer(playerId);
+                } catch (error) {
+                    console.error('Failed to initialize player:', error);
+                    setTimeout(() => {
+                        initializePlayer(playerId);
+                    }, 1000);
+                }
+            }, 100);
         }
 
         function initializePlayer(playerId) {
@@ -1266,17 +1533,26 @@
             const backwardBtn = document.getElementById(`${playerId}-backward`);
             const forwardBtn = document.getElementById(`${playerId}-forward`);
             const volumeBtn = document.getElementById(`${playerId}-volume`);
+            const fullscreenBtn = document.getElementById(`${playerId}-fullscreen`);
+            const closeBtn = document.getElementById(`${playerId}-close`);
             const seekBar = document.getElementById(`${playerId}-seek-bar`);
             const seekContainer = document.getElementById(`${playerId}-seek`);
             const currentTimeEl = document.getElementById(`${playerId}-current`);
             const durationEl = document.getElementById(`${playerId}-duration`);
 
-            let isMuted = false;
+            if (!media || !playBtn) {
+                console.error('Player elements not found:', playerId);
+                return;
+            }
 
-            // Play/Pause
-            playBtn.addEventListener('click', () => {
+            let isMuted = false;
+            let isFullscreen = false;
+
+            const handlePlayPause = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
                 if (media.paused) {
-                    media.play();
+                    media.play().catch(err => console.error('Play failed:', err));
                     playBtn.innerHTML = '<i class="fas fa-pause"></i>';
                     playBtn.classList.add('playing');
                 } else {
@@ -1284,58 +1560,141 @@
                     playBtn.innerHTML = '<i class="fas fa-play"></i>';
                     playBtn.classList.remove('playing');
                 }
-            });
+            };
+            playBtn.addEventListener('click', handlePlayPause);
+            playBtn.addEventListener('touchstart', handlePlayPause);
 
-            // Stop
-            stopBtn.addEventListener('click', () => {
+            const handleStop = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
                 media.pause();
                 media.currentTime = 0;
                 playBtn.innerHTML = '<i class="fas fa-play"></i>';
                 playBtn.classList.remove('playing');
-            });
+            };
+            stopBtn.addEventListener('click', handleStop);
+            stopBtn.addEventListener('touchstart', handleStop);
 
-            // Backward 10s
-            backwardBtn.addEventListener('click', () => {
+            const handleBackward = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
                 media.currentTime = Math.max(0, media.currentTime - 10);
-            });
+            };
+            backwardBtn.addEventListener('click', handleBackward);
+            backwardBtn.addEventListener('touchstart', handleBackward);
 
-            // Forward 10s
-            forwardBtn.addEventListener('click', () => {
-                media.currentTime = Math.min(media.duration, media.currentTime + 10);
-            });
+            const handleForward = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                media.currentTime = Math.min(media.duration || 0, media.currentTime + 10);
+            };
+            forwardBtn.addEventListener('click', handleForward);
+            forwardBtn.addEventListener('touchstart', handleForward);
 
-            // Volume/Mute
-            volumeBtn.addEventListener('click', () => {
+            const handleVolume = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
                 isMuted = !isMuted;
                 media.muted = isMuted;
                 volumeBtn.innerHTML = isMuted 
                     ? '<i class="fas fa-volume-mute"></i>' 
                     : '<i class="fas fa-volume-up"></i>';
-            });
+            };
+            volumeBtn.addEventListener('click', handleVolume);
+            volumeBtn.addEventListener('touchstart', handleVolume);
 
-            // Seek bar click
-            seekContainer.addEventListener('click', (e) => {
+            // NEW FULLSCREEN IMPLEMENTATION
+            const handleFullscreen = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                const playerElement = document.getElementById(playerId);
+                isFullscreen = !isFullscreen;
+                
+                if (isFullscreen) {
+                    // Enter fullscreen
+                    playerElement.setAttribute('data-fullscreen', 'true');
+                    fullscreenBtn.innerHTML = '<i class="fas fa-compress"></i>';
+                    fullscreenBtn.classList.add('fullscreen-active');
+                    
+                    // Also try native fullscreen API
+                    if (playerElement.requestFullscreen) {
+                        playerElement.requestFullscreen().catch(() => {});
+                    } else if (playerElement.webkitRequestFullscreen) {
+                        playerElement.webkitRequestFullscreen();
+                    } else if (media.webkitEnterFullscreen) {
+                        media.webkitEnterFullscreen();
+                    }
+                } else {
+                    // Exit fullscreen
+                    playerElement.setAttribute('data-fullscreen', 'false');
+                    fullscreenBtn.innerHTML = '<i class="fas fa-expand"></i>';
+                    fullscreenBtn.classList.remove('fullscreen-active');
+                    
+                    // Also try native fullscreen API
+                    if (document.exitFullscreen) {
+                        document.exitFullscreen().catch(() => {});
+                    } else if (document.webkitExitFullscreen) {
+                        document.webkitExitFullscreen();
+                    }
+                }
+            };
+            fullscreenBtn.addEventListener('click', handleFullscreen);
+            fullscreenBtn.addEventListener('touchstart', handleFullscreen);
+
+            // Listen for native fullscreen changes
+            const handleFullscreenChange = () => {
+                const playerElement = document.getElementById(playerId);
+                if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+                    // Exited native fullscreen
+                    isFullscreen = false;
+                    playerElement.setAttribute('data-fullscreen', 'false');
+                    fullscreenBtn.innerHTML = '<i class="fas fa-expand"></i>';
+                    fullscreenBtn.classList.remove('fullscreen-active');
+                }
+            };
+            document.addEventListener('fullscreenchange', handleFullscreenChange);
+            document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+
+            const handleClose = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                closePlayer(playerId);
+            };
+            closeBtn.addEventListener('click', handleClose);
+            closeBtn.addEventListener('touchstart', handleClose);
+
+            const handleSeek = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
                 const rect = seekContainer.getBoundingClientRect();
-                const percent = (e.clientX - rect.left) / rect.width;
-                media.currentTime = percent * media.duration;
-            });
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                const percent = (clientX - rect.left) / rect.width;
+                media.currentTime = percent * (media.duration || 0);
+            };
+            seekContainer.addEventListener('click', handleSeek);
+            seekContainer.addEventListener('touchstart', handleSeek);
 
-            // Update time and seek bar
             media.addEventListener('timeupdate', () => {
-                const percent = (media.currentTime / media.duration) * 100;
-                seekBar.style.width = `${percent}%`;
-                currentTimeEl.textContent = formatTime(media.currentTime);
+                if (media.duration) {
+                    const percent = (media.currentTime / media.duration) * 100;
+                    seekBar.style.width = `${percent}%`;
+                    currentTimeEl.textContent = formatTime(media.currentTime);
+                }
             });
 
-            // Set duration when loaded
             media.addEventListener('loadedmetadata', () => {
                 durationEl.textContent = formatTime(media.duration);
             });
 
-            // Reset play button when ended
             media.addEventListener('ended', () => {
                 playBtn.innerHTML = '<i class="fas fa-play"></i>';
                 playBtn.classList.remove('playing');
+            });
+
+            media.addEventListener('error', (e) => {
+                console.error('Media load error:', e);
+                log(`Player error: Failed to load media for ${playerId}`, 'error');
             });
         }
 
@@ -1352,11 +1711,15 @@
             if (media) {
                 media.pause();
                 media.src = '';
+                media.load();
             }
             if (player) {
                 player.remove();
             }
+            activePlayers.delete(playerId);
             log('Player closed', 'info');
+            
+            saveTerminalState();
         }
 
         function log(msg, type = 'info') {
