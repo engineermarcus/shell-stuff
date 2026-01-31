@@ -197,20 +197,20 @@
         .progress-fill {
             height: 100%;
             background: #ffff00;
-            transition: width 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            padding-right: 4px;
-            color: #000;
-            font-size: 9px;
-            font-weight: bold;
+            transition: width 0.2s linear;
+            width: 0%;
         }
 
         .progress-stats {
             margin-top: 4px;
             font-size: 10px;
             color: #666;
+        }
+
+        .progress-percent {
+            color: #ffff00;
+            font-weight: bold;
+            margin-right: 8px;
         }
 
         .result-item {
@@ -362,14 +362,15 @@
         .player-time {
             display: flex;
             justify-content: space-between;
-            color: #666;
+            color: #ff8c00;
             font-size: 10px;
             margin-bottom: 4px;
+            font-weight: bold;
         }
 
         .player-seek {
             width: 100%;
-            height: 3px;
+            height: 4px;
             background: #1a1a1a;
             margin-bottom: 8px;
             position: relative;
@@ -384,44 +385,50 @@
         }
 
         .player-buttons {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 4px;
+            display: flex;
+            gap: 2px;
             margin-bottom: 8px;
         }
 
         .player-btn {
-            padding: 6px;
-            background: transparent;
-            border: 1px solid #333;
-            color: #ff8c00;
+            flex: 1;
+            padding: 8px 4px;
+            background: #1a1a1a;
+            border: none;
+            color: #666;
             font-family: inherit;
-            font-size: 12px;
+            font-size: 14px;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
+            transition: all 0.1s;
+        }
+
+        .player-btn:hover {
+            color: #ff8c00;
+            background: #0a0a0a;
         }
 
         .player-btn:active {
-            background: #1a1a1a;
-            border-color: #ff8c00;
+            background: #000;
+            color: #ffa500;
         }
 
         .player-btn.playing {
-            background: #1a1a1a;
-            border-color: #ff8c00;
+            background: #ff8c00;
+            color: #000;
         }
 
         .player-actions {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 4px;
+            display: flex;
+            gap: 2px;
             margin-top: auto;
         }
 
         .player-action-btn {
-            padding: 6px;
+            flex: 1;
+            padding: 8px;
             border: none;
             background: #1a1a1a;
             color: #666;
@@ -434,6 +441,13 @@
             align-items: center;
             justify-content: center;
             gap: 4px;
+            text-transform: uppercase;
+            transition: all 0.1s;
+        }
+
+        .player-action-btn:hover {
+            background: #0a0a0a;
+            color: #888;
         }
 
         .player-action-btn.download {
@@ -441,8 +455,12 @@
             color: #000;
         }
 
+        .player-action-btn.download:hover {
+            background: #00cc00;
+        }
+
         .player-action-btn:active {
-            opacity: 0.7;
+            opacity: 0.8;
         }
 
         .preview-actions {
@@ -774,11 +792,29 @@
                 
                 // Handle download progress
                 if (data.type === 'progress' && data.downloadId) {
-                    updateProgress(data.downloadId, data.progress, data.message);
-                } else {
-                    // Show message for all active operations
-                    log(data.message, data.type);
+                    updateProgress(data.downloadId, data.message);
+                    return; // Don't log progress lines
                 }
+                
+                // Filter out excessive warnings and errors from yt-dlp
+                if (data.type === 'warning' || data.type === 'error') {
+                    const msg = data.message.toLowerCase();
+                    // Skip common harmless warnings
+                    if (msg.includes('unable to extract') || 
+                        msg.includes('falling back') ||
+                        msg.includes('requested format') ||
+                        msg.includes('assuming') ||
+                        msg.includes('certificate')) {
+                        return;
+                    }
+                    // Only show critical errors
+                    if (data.type === 'error' && !msg.includes('failed') && !msg.includes('error')) {
+                        return;
+                    }
+                }
+                
+                // Show message for all other operations
+                log(data.message, data.type);
             };
             
             ws.onclose = () => {
@@ -1036,37 +1072,55 @@
             div.innerHTML = `
                 <div class="progress-title">${escape(title)}</div>
                 <div class="progress-track">
-                    <div class="progress-fill" style="width: 0%">0%</div>
+                    <div class="progress-fill" style="width: 0%"></div>
                 </div>
-                <div class="progress-stats">Speed: 0 KB/s | ETA: calculating...</div>
+                <div class="progress-stats">
+                    <span class="progress-percent">0%</span>
+                    <span class="progress-info">Initializing...</span>
+                </div>
             `;
             terminal.appendChild(div);
             scrollDown();
             return div;
         }
 
-        function updateProgress(id, percent, message) {
+        function updateProgress(id, message) {
             let bar = progressBars[id];
             if (!bar) {
-                bar = createProgressBar(id, message || 'Downloading...');
+                bar = createProgressBar(id, 'Downloading...');
                 progressBars[id] = bar;
             }
 
-            const fill = bar.querySelector('.progress-fill');
-            const stats = bar.querySelector('.progress-stats');
+            // Parse yt-dlp progress format: [download]  45.2% of ~10.5MiB at 1.2MiB/s ETA 00:05
+            const percentMatch = message.match(/(\d+\.?\d*)%/);
+            const speedMatch = message.match(/at\s+([\d.]+\s*[KMG]?i?B\/s)/i);
+            const etaMatch = message.match(/ETA\s+([\d:]+)/);
             
-            fill.style.width = `${percent}%`;
-            fill.textContent = `${percent}%`;
+            if (percentMatch) {
+                const percent = parseFloat(percentMatch[1]);
+                const fill = bar.querySelector('.progress-fill');
+                const percentEl = bar.querySelector('.progress-percent');
+                const infoEl = bar.querySelector('.progress-info');
+                
+                if (fill && percentEl) {
+                    fill.style.width = `${percent}%`;
+                    percentEl.textContent = `${percent.toFixed(1)}%`;
+                }
+                
+                if (infoEl) {
+                    let info = '';
+                    if (speedMatch) info += speedMatch[1];
+                    if (etaMatch) info += ` • ETA ${etaMatch[1]}`;
+                    if (info) infoEl.textContent = info;
+                }
 
-            if (message) {
-                stats.textContent = message;
-            }
-
-            if (percent >= 100) {
-                setTimeout(() => {
-                    bar.remove();
-                    delete progressBars[id];
-                }, 2000);
+                // Auto-remove when complete
+                if (percent >= 100) {
+                    setTimeout(() => {
+                        bar.remove();
+                        delete progressBars[id];
+                    }, 2000);
+                }
             }
         }
 

@@ -276,9 +276,9 @@ async function downloadTikTokAsync(url, downloadId) {
             const output = data.toString();
             const lines = output.split('\n').filter(line => line.trim());
             lines.forEach(line => {
-                if (line.includes('[download]')) {
+                if (line.includes('[download]') && line.includes('%')) {
                     broadcastLog(downloadId, 'progress', line.trim());
-                } else if (line.trim()) {
+                } else if (line.trim() && !line.includes('Deleting') && !line.includes('has already been downloaded')) {
                     broadcastLog(downloadId, 'info', line.trim());
                 }
             });
@@ -288,6 +288,15 @@ async function downloadTikTokAsync(url, downloadId) {
             const output = data.toString();
             const lines = output.split('\n').filter(line => line.trim());
             lines.forEach(line => {
+                const lower = line.toLowerCase();
+                // Skip harmless warnings
+                if (lower.includes('warning') && 
+                    (lower.includes('unable to extract') || 
+                     lower.includes('assuming') ||
+                     lower.includes('certificate') ||
+                     lower.includes('falling back'))) {
+                    return;
+                }
                 broadcastLog(downloadId, 'warning', line);
             });
         });
@@ -375,13 +384,11 @@ async function downloadYouTubeAsync(videoUrl, format, downloadId) {
                     const output = data.toString();
                     const lines = output.split('\n').filter(line => line.trim());
                     lines.forEach(line => {
-                        if (line.includes('[download]')) {
+                        if (line.includes('[download]') && line.includes('%')) {
                             broadcastLog(downloadId, 'progress', line.trim());
-                        } else if (line.includes('[info]')) {
+                        } else if (line.includes('[info]') || line.includes('Extracting') || line.includes('Downloading')) {
                             broadcastLog(downloadId, 'info', line.trim());
-                        } else if (line.includes('Extracting') || line.includes('Downloading')) {
-                            broadcastLog(downloadId, 'info', line.trim());
-                        } else if (line.trim()) {
+                        } else if (line.trim() && !line.includes('Deleting') && !line.includes('has already been downloaded')) {
                             broadcastLog(downloadId, 'info', line.trim());
                         }
                     });
@@ -391,12 +398,22 @@ async function downloadYouTubeAsync(videoUrl, format, downloadId) {
                     const output = data.toString();
                     const lines = output.split('\n').filter(line => line.trim());
                     lines.forEach(line => {
-                        if (line.includes('WARNING')) {
-                            broadcastLog(downloadId, 'warning', line);
-                        } else if (line.includes('ERROR')) {
+                        const lower = line.toLowerCase();
+                        // Skip common harmless warnings
+                        if (lower.includes('warning') && 
+                            (lower.includes('unable to extract') || 
+                             lower.includes('assuming') ||
+                             lower.includes('certificate') ||
+                             lower.includes('falling back') ||
+                             lower.includes('requested format'))) {
+                            return;
+                        }
+                        // Only show critical errors
+                        if (lower.includes('error') && lower.includes('error:')) {
                             broadcastLog(downloadId, 'error', line);
-                        } else if (line.trim()) {
-                            broadcastLog(downloadId, 'info', line);
+                        } else if (lower.includes('warning')) {
+                            // Skip most warnings
+                            return;
                         }
                     });
                 });
