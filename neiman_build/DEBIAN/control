@@ -1,0 +1,6 @@
+Package: neiman
+Version: 1.0.1
+Architecture: all
+Maintainer: Marcus
+Depends: nodejs, ffmpeg, python, pkg-config, cairo, pango, libjpeg-turbo, libpng, librsvg, pixman, giflib, build-essential
+Description: Neiman - TikTok and YouTube downloader server with native canvas support

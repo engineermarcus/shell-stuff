@@ -1,0 +1,11 @@
+#!/data/data/com.termux/files/usr/bin/sh
+echo "🔧 Applying Termux-specific build fixes..."
+# Fix for node-gyp on Android
+mkdir -p ~/.gyp
+echo "{'variables':{'android_ndk_path':''}}" > ~/.gyp/include.gypi
+
+echo "📦 Installing NPM dependencies (this will take a few minutes)..."
+cd /data/data/com.termux/files/usr/share/neiman
+npm install --build-from-source
+
+echo "✅ Success! You can now start the app by typing: neiman"
